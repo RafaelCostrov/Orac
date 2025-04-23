@@ -3,8 +3,35 @@
 
 @theme {
 	--font-poppins: "Poppins", sans-serif;
-	--color-azul-ora: #0082c7;
-	--color-azul-ora-hover: #0071a4;
 	--color-laranja-ora: #f0a23b;
-	--color-laranja-ora-hover: #e08d0a;
+	--color-azul-ora-50: #f0f9ff;
+	--color-azul-ora-100: #e0f2fe;
+	--color-azul-ora-200: #b9e6fe;
+	--color-azul-ora-300: #7cd2fd;
+	--color-azul-ora-400: #36bdfa;
+	--color-azul-ora-500: #0ca5eb;
+	--color-azul-ora: #0082c7;
+	--color-azul-ora-700: #0168a3;
+	--color-azul-ora-800: #065886;
+	--color-azul-ora-900: #0b496f;
+	--color-azul-ora-950: #072f4a;
+	--color-laranja-ora-50: #fef7ec;
+	--color-laranja-ora-100: #fbeaca;
+	--color-laranja-ora-200: #f7d290;
+	--color-laranja-ora-300: #f2b657;
+	--color-laranja-ora: #f0a23b;
+	--color-laranja-ora-500: #e87b18;
+	--color-laranja-ora-600: #cd5a12;
+	--color-laranja-ora-700: #ab3d12;
+	--color-laranja-ora-800: #8b3015;
+	--color-laranja-ora-900: #722915;
+	--color-laranja-ora-950: #411207;
+}
+
+html,
+body,
+#root {
+	height: 100%;
+	margin: 0;
+	overflow: hidden;
 }

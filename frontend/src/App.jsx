@@ -1,13 +1,26 @@
-// import { useState } from "react";
 import "./App.css";
-import Login from "./components/login/Login";
+import { useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
+import Empresas from "./pages/Empresas";
+import SideBar from "./components/sidebar/SideBar";
 
 function App() {
+	const [isOpen, setIsOpen] = useState(false);
 	return (
-		<div className="flex flex-col relative h-screen justify-center items-center bg-linear-to-r/srgb from-indigo-500 from-30% to-orange-200 space-y-4">
-			<h1 className="text-laranja-ora text-3xl font-bold">Bem vindo!</h1>
-			<Login />
-		</div>
+		<Router>
+			<SideBar isOpen={isOpen} toggleSideBar={() => setIsOpen(!isOpen)} />
+			<main
+				className={`transition-transform duration-300 transform bg-stone-300 ${
+					isOpen ? "translate-x-48" : "translate-x-16"
+				}`}
+			>
+				<Routes>
+					<Route path="/" element={<Empresas />} />
+					<Route path="/login" element={<Login />} />
+				</Routes>
+			</main>
+		</Router>
 	);
 }
 
