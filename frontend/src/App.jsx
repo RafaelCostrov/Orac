@@ -4,15 +4,17 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Empresas from "./pages/Empresas";
 import SideBar from "./components/sidebar/SideBar";
+import NavBar from "./components/navbar/NavBar";
 
 function App() {
 	const [isOpen, setIsOpen] = useState(false);
 	return (
 		<Router>
-			<SideBar isOpen={isOpen} toggleSideBar={() => setIsOpen(!isOpen)} />
+			<NavBar />
+			<SideBar isOpen={isOpen} setIsOpen={setIsOpen} />
 			<main
-				className={`transition-transform duration-300 transform bg-stone-300 ${
-					isOpen ? "translate-x-48" : "translate-x-16"
+				className={`transition-all duration-400 transform bg-gray-300 ${
+					isOpen ? "pl-48" : "pl-16"
 				}`}
 			>
 				<Routes>
