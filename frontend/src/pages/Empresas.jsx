@@ -1,5 +1,5 @@
 import { IoAddCircle } from "react-icons/io5";
-import { IoIosRemoveCircleOutline } from "react-icons/io";
+import { IoMdRemoveCircle } from "react-icons/io";
 import { FaFilter } from "react-icons/fa";
 
 function Empresas() {
@@ -12,7 +12,7 @@ function Empresas() {
 						size={32}
 						className="hover:scale-120 transition-all duration-200"
 					/>
-					<IoIosRemoveCircleOutline
+					<IoMdRemoveCircle
 						size={32}
 						className="hover:scale-120 transition-all duration-200"
 					/>
@@ -26,7 +26,7 @@ function Empresas() {
 				<table className="bg-white border border-gray-300 overflow-hidden rounded-md shadow-md w-full">
 					<thead>
 						<tr className="bg-gray-200">
-							<th className="py-2 px-4 border-b border-gray-300">ID</th>
+							<th className="py-2 px-4 border-b border-gray-300">Cód</th>
 							<th className="py-2 px-4 border-b border-gray-300">Nome</th>
 							<th className="py-2 px-4 border-b border-gray-300">CNPJ</th>
 							<th className="py-2 px-4 border-b border-gray-300">Regime</th>

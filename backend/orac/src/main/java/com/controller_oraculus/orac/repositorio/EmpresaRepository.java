@@ -1,4 +1,7 @@
 package com.controller_oraculus.orac.repositorio;
 
-public class EmpresaRepository {
+import com.controller_oraculus.orac.model.Empresa;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface EmpresaRepository extends JpaRepository<Empresa, Long> {
 }

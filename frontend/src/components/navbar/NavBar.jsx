@@ -11,11 +11,24 @@ function NavBar() {
 					alt="Logo Orac"
 				/>
 			</a>
-			<div className="flex items-center space-x-4 text-azul-ora cursor-pointer">
-				<h2 className="text-lg">Rafael Costrov</h2>
-				<a>
-					<FaRegCircleUser size={36} />
-				</a>
+			<div className="flex items-center text-azul-ora cursor-pointer space-x-50">
+				<ul className="flex space-x-8 font-semibold ">
+					<li className="cursor-pointer hover:text-laranja-ora hover:scale-110 transition-all duration-300">
+						<a href="">Robôs</a>
+					</li>
+					<li className="cursor-pointer hover:text-laranja-ora hover:scale-110 transition-all duration-300">
+						<a href="">Mapeamentos</a>
+					</li>
+					<li className="cursor-pointer hover:text-laranja-ora hover:scale-110 transition-all duration-300">
+						<a href="">Dashboards</a>
+					</li>
+				</ul>
+				<div className="flex items-center space-x-4 cursor-pointer">
+					<h2 className="text-lg">Rafael Costrov</h2>
+					<a>
+						<FaRegCircleUser size={36} />
+					</a>
+				</div>
 			</div>
 		</div>
 	);

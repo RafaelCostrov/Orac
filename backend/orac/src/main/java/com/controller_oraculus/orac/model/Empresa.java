@@ -1,5 +1,6 @@
-package model;
+package com.controller_oraculus.orac.model;
 
+import com.controller_oraculus.orac.repositorio.EmpresaRepository;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,5 +37,19 @@ public class Empresa {
         this.vencimento = vencimento;
         this.tipoCertificado = tipoCertificado;
         this.cEO = cEO;
+    }
+
+    @Override
+    public String toString() {
+        return "Empresa{" +
+                "cod=" + cod +
+                ", empresa='" + empresa + '\'' +
+                ", cnpj='" + cnpj + '\'' +
+                ", regimeTributario='" + regimeTributario + '\'' +
+                ", cidade='" + cidade + '\'' +
+                ", vencimento=" + vencimento +
+                ", tipoCertificado='" + tipoCertificado + '\'' +
+                ", cEO='" + cEO + '\'' +
+                '}';
     }
 }
