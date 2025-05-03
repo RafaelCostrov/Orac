@@ -1,12 +1,11 @@
 package com.controller_oraculus.orac.model;
 
-import com.controller_oraculus.orac.repositorio.EmpresaRepository;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -24,11 +23,11 @@ public class Empresa {
     private String cnpj;
     private String regimeTributario;
     private String cidade;
-    private Date vencimento;
+    private LocalDate vencimento;
     private String tipoCertificado;
-    private String cEO;
+    private String ceo;
 
-    public Empresa(Long cod, String empresa, String cnpj, String regimeTributario, String cidade, Date vencimento, String tipoCertificado, String cEO) {
+    public Empresa(Long cod, String empresa, String cnpj, String regimeTributario, String cidade, LocalDate vencimento, String tipoCertificado, String ceo) {
         this.cod = cod;
         this.empresa = empresa;
         this.cnpj = cnpj;
@@ -36,20 +35,6 @@ public class Empresa {
         this.cidade = cidade;
         this.vencimento = vencimento;
         this.tipoCertificado = tipoCertificado;
-        this.cEO = cEO;
-    }
-
-    @Override
-    public String toString() {
-        return "Empresa{" +
-                "cod=" + cod +
-                ", empresa='" + empresa + '\'' +
-                ", cnpj='" + cnpj + '\'' +
-                ", regimeTributario='" + regimeTributario + '\'' +
-                ", cidade='" + cidade + '\'' +
-                ", vencimento=" + vencimento +
-                ", tipoCertificado='" + tipoCertificado + '\'' +
-                ", cEO='" + cEO + '\'' +
-                '}';
+        this.ceo = ceo;
     }
 }
