@@ -1,35 +1,56 @@
 import { IoAddCircle } from "react-icons/io5";
 import { IoMdRemoveCircle } from "react-icons/io";
 import { FaFilter } from "react-icons/fa";
-import { use, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import PerfectScrollbar from "react-perfect-scrollbar";
 import "react-perfect-scrollbar/dist/css/styles.css";
+import Paginacao from "../components/comum/Paginacao";
 
 function Empresas() {
 	const [empresas, setEmpresas] = useState([]);
-	const [cod, setCod] = useState("");
-	const [empresa, setEmpresa] = useState("");
-	const [cnpj, setCnpj] = useState("");
-	const [regimeTributario, setRegimeTributario] = useState("");
-	const [cidade, setCidade] = useState("");
-	const [vencimento, setVencimento] = useState("");
-	const [tipoCertificado, setTipoCertificado] = useState("");
-	const [ceo, setCeO] = useState("");
+	const [totalPages, setTotalPages] = useState(0);
+	const [currentPage, setCurrentPage] = useState(1);
 
-	useEffect(() => {
-		fetch("/api/empresas")
+	const fetchEmpresas = (page = 1) => {
+		fetch(`/api/empresas?page=${page - 1}`)
 			.then(response => {
 				if (!response.ok) {
 					throw new Error("Erro ao buscar empresas!");
 				}
 				return response.json();
 			})
-			.then(data => setEmpresas(data))
-
+			.then(data => {
+				setEmpresas(data.content);
+				setTotalPages(data.totalPages);
+			})
 			.catch(error => {
 				console.error("Erro ao buscar empresas:", error);
 			});
-	}, []);
+	};
+
+	function formatarCNPJ(cnpj) {
+		if (!cnpj) return "";
+		return cnpj
+			.replace(/\D/g, "") // Remove não dígitos
+			.replace(/^(\d{2})(\d)/, "$1.$2")
+			.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+			.replace(/\.(\d{3})(\d)/, ".$1/$2")
+			.replace(/(\d{4})(\d)/, "$1-$2")
+			.slice(0, 18); // Garante que não passe de 18 caracteres
+	}
+
+	useEffect(() => {
+		fetchEmpresas(currentPage);
+	}, [currentPage]);
+
+	// const [cod, setCod] = useState("");
+	// const [empresa, setEmpresa] = useState("");
+	// const [cnpj, setCnpj] = useState("");
+	// const [regimeTributario, setRegimeTributario] = useState("");
+	// const [cidade, setCidade] = useState("");
+	// const [vencimento, setVencimento] = useState("");
+	// const [tipoCertificado, setTipoCertificado] = useState("");
+	// const [ceo, setCeO] = useState("");
 
 	return (
 		<section className="flex flex-col px-4 py-8 h-screen">
@@ -51,10 +72,10 @@ function Empresas() {
 				</div>
 			</div>
 			<PerfectScrollbar>
-				<div className=" bg-white p-3 mb-10 rounded-b-lg shadow-md flex-grow overflow-y-auto ">
-					<table className="bg-white border border-gray-300 overflow-hidden rounded-md shadow-md w-full">
+				<div className=" bg-white p-6 rounded-b-lg shadow-md ">
+					<table className="bg-white border border-gray-300 rounded-md shadow-md w-full">
 						<thead>
-							<tr className="bg-gray-200">
+							<tr className="bg-gray-200 text-azul-ora ">
 								<th className="py-2 px-4 border-b border-gray-300">Cód</th>
 								<th className="py-2 px-4 border-b border-gray-300">Nome</th>
 								<th className="py-2 px-4 border-b border-gray-300">CNPJ</th>
@@ -67,10 +88,12 @@ function Empresas() {
 							</tr>
 						</thead>
 						<tbody className="text-center">
-							{empresas.map(empresa => (
+							{empresas.map((empresa, index) => (
 								<tr
 									key={empresa.cod}
 									className={`transition-all duration-300 ${
+										index % 2 === 0 ? "bg-white" : "bg-gray-100"
+									} ${
 										empresa.ceo === "CONTROLLER"
 											? "hover:bg-laranja-ora-200"
 											: "hover:bg-azul-ora-300"
@@ -83,7 +106,7 @@ function Empresas() {
 										{empresa.empresa}
 									</td>
 									<td className="py-2 px-4 border-b border-gray-300">
-										{empresa.cnpj}
+										{formatarCNPJ(empresa.cnpj)}
 									</td>
 									<td className="py-2 px-4 border-b border-gray-300">
 										{empresa.regimeTributario}
@@ -103,6 +126,11 @@ function Empresas() {
 					</table>
 				</div>
 			</PerfectScrollbar>
+			<Paginacao
+				paginaAtual={currentPage}
+				setPaginaAtual={setCurrentPage}
+				totalPaginas={totalPages}
+			></Paginacao>
 		</section>
 	);
 }

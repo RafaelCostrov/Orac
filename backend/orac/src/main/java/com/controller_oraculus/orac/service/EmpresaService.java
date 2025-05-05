@@ -4,6 +4,8 @@ import com.controller_oraculus.orac.dto.EmpresaDTO;
 import com.controller_oraculus.orac.model.Empresa;
 import com.controller_oraculus.orac.repositorio.EmpresaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,9 +26,11 @@ public class EmpresaService {
                 .collect(Collectors.toList());
     }
 
-    public List<EmpresaDTO> obtenEmpresas() {
-        Pageable pageable = PageRequest.of(0, 50);
-        return converteDTO(empresaRepository.findAll(pageable).getContent());
+    public Page<EmpresaDTO> obterEmpresas(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Empresa> result = empresaRepository.findAll(pageable);
+        List<EmpresaDTO> dtos = converteDTO(result.getContent());
+        return new PageImpl<>(dtos, pageable, result.getTotalElements());
     }
 
     public void cadastrarEmpresa(EmpresaDTO empresaDTO) {
