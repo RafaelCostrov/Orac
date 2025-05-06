@@ -8,6 +8,7 @@ import NavBar from "./components/navbar/NavBar";
 
 function App() {
 	const [isOpen, setIsOpen] = useState(false);
+	const [isFiltered, setIsFiltered] = useState(false);
 	return (
 		<Router>
 			<NavBar />
@@ -18,7 +19,15 @@ function App() {
 				}`}
 			>
 				<Routes>
-					<Route path="/" element={<Empresas />} />
+					<Route
+						path="/"
+						element={
+							<Empresas
+								isFiltered={isFiltered}
+								onClickFilter={() => setIsFiltered(!isFiltered)}
+							/>
+						}
+					/>
 					<Route path="/login" element={<Login />} />
 				</Routes>
 			</main>
