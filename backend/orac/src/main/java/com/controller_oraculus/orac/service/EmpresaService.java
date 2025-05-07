@@ -23,7 +23,7 @@ public class EmpresaService {
 
     private List<EmpresaDTO> converteDTO(List<Empresa> empresas) {
         return empresas.stream()
-                .map(e -> new EmpresaDTO(e.getCod(), e.getEmpresa(), e.getCnpj(), e.getRegimeTributario(), e.getCidade(), e.getVencimento(), e.getTipoCertificado(),
+                .map(e -> new EmpresaDTO(e.getCod(), e.getNome(), e.getCnpj(), e.getRegime(), e.getCidade(), e.getVencimento(), e.getTipoCertificado(),
                         e.getCeo()))
                 .collect(Collectors.toList());
     }
@@ -38,9 +38,9 @@ public class EmpresaService {
     public void cadastrarEmpresa(EmpresaDTO empresaDTO) {
         Empresa empresa = new Empresa(
                 empresaDTO.cod(),
-                empresaDTO.empresa(),
+                empresaDTO.nome(),
                 empresaDTO.cnpj(),
-                empresaDTO.regimeTributario(),
+                empresaDTO.regime(),
                 empresaDTO.cidade(),
                 empresaDTO.vencimento(),
                 empresaDTO.tipoCertificado(),
@@ -49,7 +49,7 @@ public class EmpresaService {
         empresaRepository.save(empresa);
     }
 
-    public Page<EmpresaDTO> filtrarEmpresas(Long cod, String empresa, String cnpj, String regimeTributario, String cidade, Pageable pageable) {
+    public Page<EmpresaDTO> filtrarEmpresas(Long cod, String nome, String cnpj, String regime, String cidade, Pageable pageable) {
         Page<Empresa> empresasPage = empresaRepository.findAll((root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -57,8 +57,8 @@ public class EmpresaService {
                 predicates.add(cb.equal(root.get("cod"), cod));
             }
 
-            if (empresa != null && !empresa.isEmpty()) {
-                predicates.add(cb.like(cb.lower(root.get("nome")), "%" + empresa.toLowerCase() + "%"));
+            if (nome != null && !nome.isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("nome")), "%" + nome.toLowerCase() + "%"));
             }
 
             if (cnpj != null && !cnpj.isEmpty()) {
@@ -66,8 +66,8 @@ public class EmpresaService {
                 predicates.add(cb.like(cb.function("regexp_replace", String.class, root.get("cnpj"), cb.literal("[^0-9]"), cb.literal("")), "%" + cnpjLimpo + "%"));
             }
 
-            if (regimeTributario != null && !regimeTributario.isEmpty()) {
-                predicates.add(cb.like(cb.lower(root.get("regimeTributario")), "%" + regimeTributario.toLowerCase() + "%"));
+            if (regime != null && !regime.isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("regime")), "%" + regime.toLowerCase() + "%"));
             }
 
             if (cidade != null && !cidade.isEmpty()) {

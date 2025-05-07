@@ -18,20 +18,20 @@ public class Empresa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cod;
     @Column(nullable = false)
-    private String empresa;
+    private String nome;
     @Column(nullable = false, unique = true)
     private String cnpj;
-    private String regimeTributario;
+    private String regime;
     private String cidade;
     private LocalDate vencimento;
     private String tipoCertificado;
     private String ceo;
 
-    public Empresa(Long cod, String empresa, String cnpj, String regimeTributario, String cidade, LocalDate vencimento, String tipoCertificado, String ceo) {
+    public Empresa(Long cod, String nome, String cnpj, String regime, String cidade, LocalDate vencimento, String tipoCertificado, String ceo) {
         this.cod = cod;
-        this.empresa = empresa;
+        this.nome = nome;
         this.cnpj = cnpj;
-        this.regimeTributario = regimeTributario;
+        this.regime = regime;
         this.cidade = cidade;
         this.vencimento = vencimento;
         this.tipoCertificado = tipoCertificado;

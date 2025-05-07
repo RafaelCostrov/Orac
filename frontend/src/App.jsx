@@ -5,10 +5,12 @@ import Login from "./pages/Login";
 import Empresas from "./pages/Empresas";
 import SideBar from "./components/sidebar/SideBar";
 import NavBar from "./components/navbar/NavBar";
+import Modal from "./components/comum/Modal";
 
 function App() {
 	const [isOpen, setIsOpen] = useState(false);
 	const [isFiltered, setIsFiltered] = useState(false);
+	const [modal, setModal] = useState(null);
 	return (
 		<Router>
 			<NavBar />
@@ -25,12 +27,22 @@ function App() {
 							<Empresas
 								isFiltered={isFiltered}
 								onClickFilter={() => setIsFiltered(!isFiltered)}
+								modal={modal}
+								onClickModal={e => setModal(e)}
+								onCloseModal={() => setModal(null)}
 							/>
 						}
 					/>
 					<Route path="/login" element={<Login />} />
 				</Routes>
 			</main>
+			{modal === "adicionar" && (
+				<Modal
+					onCloseModal={() => setModal(null)}
+					size={"large"}
+					title={"Adicionar Empresas"}
+				></Modal>
+			)}
 		</Router>
 	);
 }
