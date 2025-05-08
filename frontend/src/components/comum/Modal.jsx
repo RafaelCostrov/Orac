@@ -4,10 +4,10 @@ import { IoIosClose } from "react-icons/io";
 
 function Modal({ onCloseModal, modal, buttons, size, title, children }) {
 	const sizes = {
-		small: "w-3/10 h-1/2",
-		medium: "w-4/10 h-2/3",
-		large: "w-1/2 h-3/4",
-		extraLarge: "w-6/10 h-3/4",
+		small: "w-3/10 h-5/10",
+		medium: "w-4/10 h-6/10",
+		large: "w-5/10 h-7/10",
+		extraLarge: "w-6/10 h-8/10",
 	};
 
 	const modalRef = useRef(null);
@@ -32,7 +32,7 @@ function Modal({ onCloseModal, modal, buttons, size, title, children }) {
 		<AnimatePresence>
 			{modal !== null && (
 				<motion.div
-					className="fixed inset-0 z-20 flex items-center justify-center bg-black/50"
+					className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
 					exit={{ opacity: 0 }}
@@ -52,12 +52,14 @@ function Modal({ onCloseModal, modal, buttons, size, title, children }) {
 						>
 							<IoIosClose size={24} />
 						</button>
-						<h2 className="text-xl font-bold p-4 border-b border-gray-200 mb-10">
+						<h2 className="text-xl text-azul-ora font-semibold p-4 border-b border-gray-200 mb-10">
 							{title}
 						</h2>
-						<div className="flex h-full px-6 gap-6">{children}</div>
+						<div className="h-full flex items-center justify-center">
+							{children}
+						</div>
 						{buttons && (
-							<div className="flex justify-center gap-4">{buttons}</div>
+							<div className="flex justify-center mb-5 gap-4">{buttons}</div>
 						)}
 					</motion.div>
 				</motion.div>

@@ -8,7 +8,7 @@ function SideBar({ isOpen, setIsOpen }) {
 		<aside
 			onMouseEnter={() => setIsOpen(true)}
 			onMouseLeave={() => setIsOpen(false)}
-			className={`absolute top-16 left-0 h-full shadow-2xl z-10 bg-white text-azul-ora transition-all duration-400 flex flex-col items-center pt-30 ${
+			className={`absolute top-16 left-0 h-full shadow-2xl bg-white text-azul-ora transition-all duration-400 flex flex-col z-10 items-center pt-30 ${
 				isOpen ? "w-48" : "w-16"
 			}`}
 		>

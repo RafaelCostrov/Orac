@@ -15,7 +15,6 @@ import java.time.LocalDate;
 public class Empresa {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cod;
     @Column(nullable = false)
     private String nome;

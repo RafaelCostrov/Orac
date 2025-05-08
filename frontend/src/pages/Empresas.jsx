@@ -2,6 +2,7 @@ import { IoAddCircle, IoSearchSharp } from "react-icons/io5";
 import { IoMdRemoveCircle } from "react-icons/io";
 import { FaFilter } from "react-icons/fa";
 import { useState, useEffect } from "react";
+import toast, { Toaster } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import PerfectScrollbar from "react-perfect-scrollbar";
 import "react-perfect-scrollbar/dist/css/styles.css";
@@ -9,13 +10,19 @@ import Paginacao from "../components/comum/Paginacao";
 import MenuFiltro from "../components/comum/MenuFiltro";
 import InputUnico from "../components/comum/InputUnico";
 import InputDuplo from "../components/comum/InputDuplo";
+import Modal from "../components/comum/Modal";
+import ButtonAdd from "../components/comum/ButtonAdd.jsx";
 
 function Empresas({
 	isFiltered,
 	onClickFilter,
-	modal,
 	onClickModal,
 	onCloseModal,
+	notifyAcerto,
+	notifyErro,
+	setLoading,
+	modal,
+	setModal,
 }) {
 	const [empresas, setEmpresas] = useState([]);
 	const [totalPages, setTotalPages] = useState(0);
@@ -25,6 +32,7 @@ function Empresas({
 	const [cnpj, setCnpj] = useState("");
 	const [regime, setRegime] = useState("");
 	const [cidade, setCidade] = useState("");
+	const [vencimento, setVencimento] = useState("");
 	const [vencimentoMin, setVencimentoMin] = useState("");
 	const [vencimentoMax, setVencimentoMax] = useState("");
 	const [tipoCertificado, setTipoCertificado] = useState("");
@@ -76,6 +84,42 @@ function Empresas({
 			});
 	};
 
+	const handleAddEmpresa = async () => {
+		setLoading(true);
+
+		const formData = new FormData();
+		formData.append("cod", cod);
+		formData.append("nome", nome);
+		formData.append("cnpj", cnpj);
+		formData.append("regime", regime);
+		formData.append("cidade", cidade);
+		formData.append("vencimento", vencimento);
+		formData.append("tipoCertificado", tipoCertificado);
+		formData.append("ceo", ceo);
+
+		try {
+			const response = await fetch("/api/empresas", {
+				method: "POST",
+				body: formData,
+			});
+
+			const message = await response.text();
+			if (response.ok) {
+				notifyAcerto();
+				onCloseModal();
+			} else {
+				toast.error("Erro ao adicionar empresa!");
+				console.log(message);
+			}
+		} catch (error) {
+			console.error("Erro ao adicionar empresa:", error);
+			notifyErro();
+		} finally {
+			setLoading(false);
+			limparForms();
+		}
+	};
+
 	function formatarCNPJ(cnpj) {
 		if (!cnpj) return "";
 		return cnpj
@@ -89,20 +133,36 @@ function Empresas({
 
 	function formatarData(data) {
 		if (!data) return "-";
-		const [ano, mes, dia] = data.split("-");
-		return `${dia}/${mes}/${ano}`;
+		return data.replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$3/$2/$1");
+	}
+
+	function formatarDataEscrita(data) {
+		if (!data) return "";
+		const numeros = data.replace(/\D/g, "");
+		let formatado = "";
+
+		if (numeros.length <= 2) {
+			formatado = numeros;
+		} else if (numeros.length <= 4) {
+			formatado = numeros.replace(/(\d{2})(\d{1,2})/, "$1/$2");
+		} else {
+			formatado = numeros.replace(/(\d{2})(\d{2})(\d{1,4})/, "$1/$2/$3");
+		}
+
+		return formatado.slice(0, 10);
 	}
 
 	useEffect(() => {
 		fetchEmpresas(currentPage);
 	}, [currentPage]);
 
-	const limparFiltros = () => {
+	const limparForms = () => {
 		setCod("");
 		setNome("");
 		setCnpj("");
 		setRegime("");
 		setCidade("");
+		setVencimento("");
 		setVencimentoMin("");
 		setVencimentoMax("");
 		setTipoCertificado("");
@@ -129,9 +189,9 @@ function Empresas({
 
 	return (
 		<>
-			<section className="flex flex-col  p-4 h-screen ">
-				<div className="flex justify-between bg-azul-ora rounded-t-2xl py-2 px-10 ">
-					<h1 className="text-3xl font-bold text-laranja-ora">Empresas</h1>
+			<section className="flex flex-col  p-4 h-screen  ">
+				<div className="flex justify-between bg-azul-ora rounded-t-2xl py-2 px-10  ">
+					<h1 className="text-3xl font-bold text-laranja-ora ">Empresas</h1>
 					<div className="flex justify-between items-center text-laranja-ora space-x-6">
 						<button onClick={() => onClickModal("adicionar")}>
 							<IoAddCircle
@@ -160,7 +220,7 @@ function Empresas({
 						setCurrentPage(1);
 						fetchEmpresas(1);
 					}}
-					onClear={limparFiltros}
+					onClear={limparForms}
 					filtrosAtivos={algumFiltroAtivo()}
 				>
 					<InputUnico
@@ -302,6 +362,85 @@ function Empresas({
 					</motion.div>
 				</AnimatePresence>
 			</section>
+			{modal === "adicionar" && (
+				<div className="relative w-screen h-screen overflow-visible z-50">
+					<Modal
+						onCloseModal={onCloseModal}
+						size={"medium"}
+						title={"Adicionar Empresas"}
+					>
+						<form
+							onSubmit={e => {
+								e.preventDefault();
+								handleAddEmpresa();
+							}}
+							className="px-4 grid grid-cols-7 auto-rows-auto gap-4"
+						>
+							<InputUnico
+								nomeInput={"Código"}
+								type={"text"}
+								classNameDiv={"col-start-1 row-start-1"}
+								value={cod}
+								onChange={e => setCod(e.target.value)}
+							/>
+							<InputUnico
+								nomeInput={"CNPJ"}
+								type={"text"}
+								classNameDiv={"col-start-2 row-start-1  col-span-3"}
+								value={cnpj}
+								onChange={e => setCnpj(formatarCNPJ(e.target.value))}
+							/>
+							<InputUnico
+								nomeInput={"Regime Tributario"}
+								type={"text"}
+								classNameDiv={"col-start-5 row-start-1  col-span-2"}
+								value={regime}
+								onChange={e => setRegime(e.target.value)}
+							/>
+							<InputUnico
+								nomeInput={"Nome"}
+								type={"text"}
+								classNameDiv={"col-start-1 row-start-2  col-span-4"}
+								value={nome}
+								onChange={e => setNome(e.target.value)}
+							/>
+							<InputUnico
+								nomeInput={"Cidade"}
+								type={"text"}
+								classNameDiv={"col-start-5 row-start-2  col-span-2"}
+								value={cidade}
+								onChange={e => setCidade(e.target.value)}
+							/>
+							<InputUnico
+								nomeInput={"Vencimento do certificado"}
+								type={"text"}
+								classNameDiv={"col-start-1 row-start-3 col-span-3"}
+								value={vencimento}
+								onChange={e =>
+									setVencimento(formatarDataEscrita(e.target.value))
+								}
+							/>
+							<InputUnico
+								nomeInput={"Tipo do certificado"}
+								type={"text"}
+								classNameDiv={"col-start-4 row-start-3 col-span-2"}
+								value={tipoCertificado}
+								onChange={e => setTipoCertificado(e.target.value)}
+							/>
+							<InputUnico
+								nomeInput={"C&O"}
+								type={"text"}
+								classNameDiv={"col-start-6 row-start-3 col-span-2"}
+								value={ceo}
+								onChange={e => setCeO(e.target.value)}
+							/>
+							<div className="flex justify-center mb-5 gap-4 col-start-4 row-start-6">
+								<ButtonAdd></ButtonAdd>
+							</div>
+						</form>
+					</Modal>
+				</div>
+			)}
 		</>
 	);
 }
