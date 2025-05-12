@@ -1,6 +1,7 @@
 package com.controller_oraculus.orac.controller;
 
 import com.controller_oraculus.orac.dto.EmpresaDTO;
+import com.controller_oraculus.orac.mapper.EmpresaMapper;
 import com.controller_oraculus.orac.service.EmpresaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,38 +33,55 @@ public class EmpresaController {
             @RequestParam(required = false) String cnpj,
             @RequestParam(required = false) String regime,
             @RequestParam(required = false) String cidade,
+            @RequestParam(required = false) String vencimentoMin,
+            @RequestParam(required = false) String vencimentoMax,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        return empresaService.filtrarEmpresas(cod, nome, cnpj, regime, cidade, pageable);
+        return empresaService.filtrarEmpresas(cod, nome, cnpj, regime, cidade, vencimentoMin, vencimentoMax, pageable);
     }
 
     @PostMapping("/empresas")
     public ResponseEntity<String> adicionarEmpresa(
-            @RequestParam("cod") Long cod,
-            @RequestParam("nome") String nome,
-            @RequestParam("cnpj") String cnpj,
-            @RequestParam("regime") String regime,
-            @RequestParam("cidade") String cidade,
-            @RequestParam("vencimento") String vencimento,
-            @RequestParam("tipoCertificado") String tipoCertificado,
-            @RequestParam("ceo") String ceo
+            @RequestBody EmpresaDTO empresaDTO
     ) {
-        logger.info("Recebendo requisição para adicionar empresa: cod={}, nome={}, cnpj={}, regime={}, cidade={}, vencimento={}, tipoCertificado={}, ceo={}",
-                cod, nome, cnpj, regime, cidade, vencimento, tipoCertificado, ceo);
-        try {
-            String cnpjLimpo = cnpj.replaceAll("\\D", "");
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-            LocalDate dataVencimento = LocalDate.parse(vencimento, formatter);
-            EmpresaDTO dto = new EmpresaDTO(cod, nome, cnpjLimpo, regime, cidade, dataVencimento, tipoCertificado, ceo);
+       try {
+            EmpresaDTO dto = EmpresaMapper.mapDtoTratado(empresaDTO, empresaDTO.cod());
             empresaService.cadastrarEmpresa(dto);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Empresa adicionada com sucesso");
+            return ResponseEntity.status(HttpStatus.CREATED).body("Empresa adicionada com sucesso!");
         } catch (Exception e) {
             logger.error("Erro ao adicionar empresa: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao adicionar empresa: " + e.getMessage());
+                    .body("Erro ao adicionar empresa: \n" + e.getMessage());
         }
     }
 
+    @PutMapping("/empresas/{cod}")
+    public ResponseEntity<String> atualizarEmpresa(@PathVariable Long cod, @RequestBody EmpresaDTO dto) {
+        try {
+            EmpresaDTO empresaDTO = EmpresaMapper.mapDtoTratado(dto, cod);
+            empresaService.atualizarEmpresa(cod, empresaDTO);
+            return ResponseEntity.status(HttpStatus.OK).body("Empresa atualizada com sucesso");
+        } catch (Exception e) {
+            logger.error("Erro ao atualizar empresa: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao atualizar empresa: \n" + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/empresas/{cod}")
+    public ResponseEntity<String> removerEmpresa(@PathVariable Long cod) {
+        try {
+            empresaService.removerEmpresa(cod);
+            return ResponseEntity.ok("Empresa removida com sucesso");
+        } catch (Exception e) {
+            logger.error("Erro ao remover empresa: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao remover empresa: \n" + e.getMessage());
+        }
+
+
+    }
 }
+

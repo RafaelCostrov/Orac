@@ -10,8 +10,6 @@ function MenuFiltro({ isFiltered, children, onClick, onClear, filtrosAtivos }) {
 			{isFiltered && (
 				<motion.div className="bg-white p-4">
 					<form
-						action=""
-						method="get"
 						className={`bg-gray-200 p-4 border shadow-lg border-gray-300 rounded-xl flex flex-col 
 					}`}
 					>

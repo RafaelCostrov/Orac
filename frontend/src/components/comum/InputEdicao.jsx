@@ -5,13 +5,16 @@ const sizes = {
 	extraLarge: "w-9/10",
 };
 
-function InputUnico({
+function InputEdicao({
 	nomeInput,
 	type,
 	className,
 	size,
 	classNameLabel,
 	classNameDiv,
+	value,
+	focado,
+	onChange,
 	...props
 }) {
 	return (
@@ -24,11 +27,17 @@ function InputUnico({
 			</label>
 			<input
 				type={type}
-				className={`bg-white rounded-sm shadow-md border ${sizes[size]} border-gray-300 focus:outline-2 outline-offset-2 outline-laranja-ora pl-3${className} pl-1`}
+				value={value}
+				className={`${
+					focado ? "bg-white" : "bg-gray-200"
+				} rounded-sm shadow-md border ${
+					sizes[size]
+				} border-gray-300 focus:outline-2 outline-offset-2 outline-laranja-ora pl-3 ${className}`}
+				onChange={onChange}
 				{...props}
 			/>
 		</div>
 	);
 }
 
-export default InputUnico;
+export default InputEdicao;
