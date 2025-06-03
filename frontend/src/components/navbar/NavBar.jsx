@@ -1,5 +1,5 @@
 import oracPadrao from "../../assets/images/orac-padrao.png";
-import Dropdown from "./DropDown";
+import Dropdown from "./Dropdown";
 
 function NavBar({ nome }) {
 	return (
