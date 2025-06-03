@@ -3,6 +3,8 @@ package com.controller_oraculus.orac.controller;
 import com.controller_oraculus.orac.dto.EmpresaDTO;
 import com.controller_oraculus.orac.mapper.EmpresaMapper;
 import com.controller_oraculus.orac.service.EmpresaService;
+import com.lowagie.text.DocumentException;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -80,8 +83,17 @@ public class EmpresaController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Erro ao remover empresa: \n" + e.getMessage());
         }
-
-
     }
+
+    @GetMapping("/empresas/exportar/csv")
+    public void exportarCsv(HttpServletResponse response) throws IOException {
+        empresaService.exportarCsv(response);
+    }
+
+    @GetMapping("/empresas/exportar/pdf")
+    public void exportarPdf(HttpServletResponse response) throws IOException, DocumentException {
+        empresaService.exportarPdf(response);
+    }
+
 }
 

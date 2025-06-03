@@ -1,7 +1,7 @@
-import { FaRegCircleUser } from "react-icons/fa6";
 import oracPadrao from "../../assets/images/orac-padrao.png";
+import Dropdown from "./DropDown";
 
-function NavBar() {
+function NavBar({ nome }) {
 	return (
 		<nav className=" flex justify-between items-center p-8 bg-white shadow-2xl h-16 top-0 left-0 ">
 			<a>
@@ -23,12 +23,7 @@ function NavBar() {
 						<a href="">Dashboards</a>
 					</li>
 				</ul>
-				<div className="flex items-center space-x-4 cursor-pointer">
-					<h2 className="text-lg">Rafael Costrov</h2>
-					<a>
-						<FaRegCircleUser size={36} />
-					</a>
-				</div>
+				<Dropdown nome={nome}></Dropdown>
 			</div>
 		</nav>
 	);

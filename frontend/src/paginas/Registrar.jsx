@@ -5,54 +5,56 @@ import Input from "../components/comum/inputs/InputLogin";
 import Button from "../components/comum/buttons/ButtonLogin";
 import { FaUser } from "react-icons/fa";
 import { IoKey } from "react-icons/io5";
+import { MdOutlineAlternateEmail } from "react-icons/md";
 import oracPadrao from "../assets/images/orac-padrao.png";
 import GradientText from "../utils/GradientText";
 import BlurText from "../utils/BlurText";
+import { Link } from "react-router-dom";
 
-function Login() {
+function Registrar() {
+	const [nome, setNome] = useState("");
 	const [email, setEmail] = useState("");
 	const [senha, setSenha] = useState("");
 	const [erro, setErro] = useState("");
 	const navigate = useNavigate();
 
-	const handleLogin = async () => {
+	const handleRegistrar = async () => {
 		try {
 			const response = await fetch(
-				"http://localhost:8080/api/v1/auth/autenticar",
+				"http://localhost:8080/api/v1/auth/registrar",
 				{
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
 					},
-					body: JSON.stringify({ email, senha }),
+					body: JSON.stringify({ nome, email, senha }),
 				}
 			);
 			if (!response.ok) {
 				const errorData = await response.json();
-				throw new Error("Erro ao autenticar: " + errorData.message);
+				throw new Error("Erro ao registrar: " + errorData.message);
 			}
-
 			const data = await response.json();
-			const { token, nome } = data;
+			const token = data.token;
 			localStorage.setItem("token", token);
-			localStorage.setItem("nome", nome);
 			navigate("/");
 		} catch (error) {
-			console.error("Erro ao fazer login:", error);
-			setErro("Usuário ou senha inválidos");
+			console.error("Erro ao registrar:", error);
+			setErro("Erro ao criar conta. Tente novamente.");
 		}
 	};
+
 	return (
-		<div className="flex flex-col relative h-screen justify-center items-center bg-[url('/background.png')] bg-cover space-y-4 px-4">
+		<div className="flex flex-col relative h-screen justify-center items-center bg-gradient-to-r from-azul-ora from-30% to-laranja-ora space-y-4 px-4">
 			<BlurText
 				text="Seja bem-vindo ao Orac!"
 				delay={200}
 				animateBy="letters"
 				direction="top"
-				className="text-2xl sm:text-3xl font-semibold text-slate-200 text-center"
+				className="text-2xl sm:text-3xl font-semibold text-laranja-ora text-center"
 			/>
 
-			<div className="flex flex-col space-y-5 bg-white/80 backdrop-blur-sm p-6 sm:p-10 shadow-lg rounded-xl items-center w-full sm:w-10/12 md:w-8/12 lg:w-5/12 max-w-lg">
+			<div className="flex flex-col space-y-5 bg-zinc-200 p-6 sm:p-10 shadow-lg rounded-xl items-center w-full sm:w-10/12 md:w-8/12 lg:w-5/12 max-w-lg">
 				<img src={oracPadrao} alt="Orac Logo" className="w-6/12 sm:w-7/12" />
 
 				<GradientText
@@ -61,17 +63,23 @@ function Login() {
 					showBorder={false}
 					className="text-xl sm:text-2xl"
 				>
-					Acesse sua conta
+					Preencha os dados abaixo
 				</GradientText>
 
 				<Input
-					placeholder="Usuário"
+					placeholder="Nome"
 					type="text"
 					icon={<FaUser />}
+					value={nome}
+					onChange={e => setNome(e.target.value)}
+				/>
+				<Input
+					placeholder="Email"
+					type="email"
+					icon={<MdOutlineAlternateEmail />}
 					value={email}
 					onChange={e => setEmail(e.target.value)}
 				/>
-
 				<Input
 					placeholder="Senha"
 					type="password"
@@ -82,24 +90,19 @@ function Login() {
 
 				{erro && <p className="text-red-500 text-sm text-center">{erro}</p>}
 
-				<div className="flex flex-col sm:flex-row gap-4 w-full justify-center items-center">
-					<Button onClick={handleLogin} color="laranja">
-						Entrar
-					</Button>
-					<Button link={"/registrar"} color="azul">
-						Primeiro acesso?
-					</Button>
-				</div>
+				<Button onClick={handleRegistrar} color="azul">
+					Criar conta
+				</Button>
 
-				<a
-					href=""
+				<Link
+					to={"/login"}
 					className="text-azul-ora font-semibold hover:text-laranja-ora transition duration-250 text-center"
 				>
-					Esqueceu a senha?
-				</a>
+					Voltar
+				</Link>
 			</div>
 		</div>
 	);
 }
 
-export default Login;
+export default Registrar;

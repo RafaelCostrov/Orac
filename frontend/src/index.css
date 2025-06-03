@@ -26,6 +26,20 @@
 	--color-laranja-ora-800: #8b3015;
 	--color-laranja-ora-900: #722915;
 	--color-laranja-ora-950: #411207;
+
+	--animate-gradient: gradient 4s linear infinite;
+
+	@keyframes gradient {
+		0% {
+			background-position: 0% 50%;
+		}
+		50% {
+			background-position: 100% 50%;
+		}
+		100% {
+			background-position: 0% 50%;
+		}
+	}
 }
 
 html,

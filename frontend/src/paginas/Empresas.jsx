@@ -1,15 +1,21 @@
 import { IoAddCircle, IoSearchSharp } from "react-icons/io5";
 import { IoMdRemoveCircle } from "react-icons/io";
-import { FaFilter, FaTrash } from "react-icons/fa";
+import {
+	FaFilter,
+	FaTrash,
+	FaFileCsv,
+	FaFilePdf,
+	FaFileExport,
+} from "react-icons/fa";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import PerfectScrollbar from "react-perfect-scrollbar";
 import "react-perfect-scrollbar/dist/css/styles.css";
 import Paginacao from "../components/comum/Paginacao.jsx";
 import MenuFiltro from "../components/comum/MenuFiltro.jsx";
-import InputUnico from "../components/comum/InputUnico.jsx";
-import InputDuplo from "../components/comum/InputDuplo.jsx";
-import InputEdicao from "../components/comum/InputEdicao.jsx";
+import InputUnico from "../components/comum/inputs/InputUnico.jsx";
+import InputDuplo from "../components/comum/inputs/InputDuplo.jsx";
+import InputEdicao from "../components/comum/inputs/InputEdicao.jsx";
 import Modal from "../components/comum/Modal.jsx";
 import ButtonAdd from "../components/comum/buttons/ButtonAdd.jsx";
 import {
@@ -55,7 +61,7 @@ function Empresas({
 		nome: "Nome",
 		cnpj: "CNPJ",
 	};
-
+	const token = localStorage.getItem("token");
 	const fetchEmpresas = (page = 1) => {
 		setLoading(true);
 		const params = new URLSearchParams();
@@ -71,7 +77,11 @@ function Empresas({
 		if (vencimentoMax)
 			params.append("vencimentoMax", formatarDataBD(vencimentoMax));
 
-		fetch(`/api/empresas?${params.toString()}`)
+		fetch(`/api/empresas?${params.toString()}`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		})
 			.then(response => {
 				if (!response.ok) {
 					throw new Error("Erro ao buscar empresas!");
@@ -93,7 +103,11 @@ function Empresas({
 		const params = new URLSearchParams();
 		params.append("page", page - 1);
 
-		fetch(`/api/empresas?${params.toString()}`)
+		fetch(`/api/empresas?${params.toString()}`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		})
 			.then(response => {
 				if (!response.ok) {
 					throw new Error("Erro ao buscar empresas!");
@@ -149,6 +163,7 @@ function Empresas({
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
 				},
 				body: JSON.stringify(payload),
 			});
@@ -203,6 +218,7 @@ function Empresas({
 				method: "PUT",
 				headers: {
 					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
 				},
 				body: JSON.stringify(payload),
 			});
@@ -232,6 +248,10 @@ function Empresas({
 		try {
 			const response = await fetch(`/api/empresas/${empresaSelecionada.cod}`, {
 				method: "DELETE",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
 			});
 
 			const message = await response.text();
@@ -261,6 +281,10 @@ function Empresas({
 			const promises = empresasSelecionadas.map(cod =>
 				fetch(`/api/empresas/${cod}`, {
 					method: "DELETE",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`,
+					},
 				})
 			);
 			const responses = await Promise.all(promises);
@@ -285,6 +309,41 @@ function Empresas({
 			console.error("Erro ao remover empresas:", error);
 			notifyErro("Erro ao remover empresas.");
 		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleExportarEmpresas = async formato => {
+		setLoading(true);
+		try {
+			const response = await fetch(`/api/empresas/exportar/${formato}`, {
+				method: "GET",
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+			if (!response.ok) {
+				const message = await response.text();
+				notifyErro(`Erro ao exportar empresas: ${message}`);
+				setLoading(false);
+				throw new Error(message);
+			}
+			const blob = await response.blob();
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = `empresas.${formato}`;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			window.URL.revokeObjectURL(url);
+			notifyAcerto(
+				`Empresas exportadas com sucesso para ${formato.toUpperCase()}!`
+			);
+			setLoading(false);
+		} catch (error) {
+			console.error("Erro ao exportar empresas:", error);
+			notifyErro("Erro ao exportar empresas.");
 			setLoading(false);
 		}
 	};
@@ -326,28 +385,37 @@ function Empresas({
 
 	return (
 		<>
-			<section className="flex flex-col  p-4 h-screen  ">
-				<div className="flex justify-between bg-azul-ora rounded-t-2xl py-2 px-10  ">
-					<h1 className="text-3xl font-bold text-laranja-ora ">Empresas</h1>
-					<div className="flex justify-between items-center text-laranja-ora space-x-6">
+			<section className="flex flex-col p-4 h-screen sm:p-2 md:p-4">
+				<div className="flex justify-between bg-azul-ora rounded-t-2xl py-2 px-10 sm:px-4 sm:py-2 md:px-6 lg:px-10">
+					<h1 className="text-3xl font-bold text-laranja-ora sm:text-xl md:text-2xl lg:text-3xl">
+						Empresas
+					</h1>
+					<div className="flex justify-between items-center text-laranja-ora space-x-6 sm:space-x-2 md:space-x-4 lg:space-x-6">
+						<button onClick={() => onClickModal("exportar")}>
+							<FaFileExport
+								size={28}
+								className="sm:size-5 md:size-6 lg:size-7 hover:scale-120 transition-all duration-200 cursor-pointer"
+								title="Exportar"
+							/>
+						</button>
 						<button onClick={() => onClickModal("adicionar")}>
 							<IoAddCircle
 								size={32}
-								className="hover:scale-120 transition-all duration-200 cursor-pointer"
+								className="sm:size-6 md:size-7 lg:size-8 hover:scale-120 transition-all duration-200 cursor-pointer"
 								title="Adicionar empresa"
 							/>
 						</button>
 						<button onClick={() => setRemoverLote(!removerLote)}>
 							<IoMdRemoveCircle
 								size={32}
-								className="hover:scale-120 transition-all duration-200 cursor-pointer"
+								className="sm:size-6 md:size-7 lg:size-8 hover:scale-120 transition-all duration-200 cursor-pointer"
 								title="Remover empresa"
 							/>
 						</button>
 						<button onClick={onClickFilter}>
 							<FaFilter
 								size={24}
-								className="hover:scale-120 transition-all duration-200 cursor-pointer"
+								className="sm:size-5 md:size-6 hover:scale-120 transition-all duration-200 cursor-pointer"
 								title="Filtrar empresas"
 							/>
 						</button>
@@ -379,7 +447,7 @@ function Empresas({
 					<InputUnico
 						nomeInput={"CNPJ"}
 						type={"text"}
-						classNameDiv={"col-start-2 row-start-1 "}
+						classNameDiv={"col-start-2 row-start-1"}
 						value={cnpj}
 						onChange={e => setCnpj(formatarDataEscrita(e.target.value))}
 					/>
@@ -415,34 +483,34 @@ function Empresas({
 					<motion.div
 						layout
 						transition={{ duration: 0.4, ease: "easeInOut" }}
-						className=" bg-white p-4 rounded-b-lg shadow-md flex flex-col max-h-[calc(100vh-150px)]"
+						className="bg-white p-4 rounded-b-lg shadow-md flex flex-col max-h-[calc(100vh-150px)] sm:p-2 md:p-4"
 					>
 						<table className="bg-white border border-gray-300 w-full table-fixed">
 							<thead>
 								<tr className="bg-gray-200 text-azul-ora">
-									<th className="py-3 px-2 border-b border-gray-300 w-1/20">
+									<th className="py-3 px-2 border-b border-gray-300 w-1/20 sm:text-xs md:text-sm">
 										Cód
 									</th>
-									<th className="py-3 px-2 border-b border-gray-300 text-left">
+									<th className="py-3 px-2 border-b border-gray-300 text-left sm:text-xs md:text-sm">
 										Nome
 									</th>
-									<th className="py-3 px-2 border-b border-gray-300 w-3/20">
+									<th className="py-3 px-2 border-b border-gray-300 w-3/20 sm:text-xs md:text-sm">
 										CNPJ
 									</th>
-									<th className="py-3 px-2 border-b border-gray-300 w-3/20">
+									<th className="py-3 px-2 border-b border-gray-300 w-3/20 sm:text-xs md:text-sm">
 										Regime
 									</th>
-									<th className="py-3 px-2 border-b border-gray-300 w-2/20">
+									<th className="py-3 px-2 border-b border-gray-300 w-2/20 sm:text-xs md:text-sm">
 										Cidade
 									</th>
-									<th className="py-3 px-2 border-b border-gray-300 w-3/20">
-										Vencimento certificado
+									<th className="py-3 px-2 border-b border-gray-300 w-3/20 sm:text-xs md:text-sm">
+										Vencimento Cert.
 									</th>
-									<th className="py-3 px-2 border-b border-gray-300 w-2/20">
+									<th className="py-3 px-2 border-b border-gray-300 w-2/20 sm:text-xs md:text-sm">
 										C&O
 									</th>
 									{removerLote && (
-										<th className="py-3 px-2 border-b border-gray-300 w-1/20">
+										<th className="py-3 px-2 border-b border-gray-300 w-1/20 sm:text-xs md:text-sm">
 											<div className="flex justify-center items-center">
 												<FaTrash />
 											</div>
@@ -480,35 +548,35 @@ function Empresas({
 														  }
 												}
 											>
-												<td className="py-3 px-2 border-b border-gray-300 truncate whitespace-nowrap overflow-hidden w-1/20">
+												<td className="py-3 px-2 border-b border-gray-300 truncate whitespace-nowrap overflow-hidden w-1/20 sm:text-xs md:text-sm">
 													{empresa.cod}
 												</td>
 												<td
 													title={empresa.nome}
-													className="py-3 px-2 border-b border-gray-300 truncate whitespace-nowrap overflow-hidden text-left"
+													className="py-3 px-2 border-b border-gray-300 truncate whitespace-nowrap overflow-hidden text-left sm:text-xs md:text-sm"
 												>
 													{empresa.nome}
 												</td>
-												<td className="py-3 px-2 border-b border-gray-300 truncate whitespace-nowrap overflow-hidden w-3/20">
+												<td className="py-3 px-2 border-b border-gray-300 truncate whitespace-nowrap overflow-hidden w-3/20 sm:text-xs md:text-sm">
 													{formatarCNPJ(empresa.cnpj)}
 												</td>
-												<td className="py-3 px-2 border-b border-gray-300 truncate whitespace-nowrap overflow-hidden w-3/20">
+												<td className="py-3 px-2 border-b border-gray-300 truncate whitespace-nowrap overflow-hidden w-3/20 sm:text-xs md:text-sm">
 													{empresa.regime}
 												</td>
 												<td
 													title={empresa.cidade}
-													className="py-3 px-2 border-b border-gray-300 truncate whitespace-nowrap overflow-hidden w-2/20"
+													className="py-3 px-2 border-b border-gray-300 truncate whitespace-nowrap overflow-hidden w-2/20 sm:text-xs md:text-sm"
 												>
 													{empresa.cidade}
 												</td>
-												<td className="py-3 px-2 border-b border-gray-300 truncate whitespace-nowrap overflow-hidden w-3/20">
+												<td className="py-3 px-2 border-b border-gray-300 truncate whitespace-nowrap overflow-hidden w-3/20 sm:text-xs md:text-sm">
 													{empresa.vencimento}
 												</td>
-												<td className="py-3 px-2 border-b border-gray-300 truncate whitespace-nowrap overflow-hidden w-2/20">
+												<td className="py-3 px-2 border-b border-gray-300 truncate whitespace-nowrap overflow-hidden w-2/20 sm:text-xs md:text-sm">
 													{empresa.ceo}
 												</td>
 												{removerLote && (
-													<td className="py-3 px-2 border-b border-gray-300 truncate whitespace-nowrap overflow-hidden w-1/20">
+													<td className="py-3 px-2 border-b border-gray-300 truncate whitespace-nowrap overflow-hidden w-1/20 sm:text-xs md:text-sm">
 														<input
 															type="checkbox"
 															checked={empresasSelecionadas.includes(
@@ -535,23 +603,48 @@ function Empresas({
 								</table>
 							</PerfectScrollbar>
 						</div>
-						<div className="flex justify-end gap-6 items-end">
+						<div className="flex justify-end gap-6 items-end sm:gap-2 md:gap-4 lg:gap-6">
 							{removerLote && (
 								<div>
-									<ButtonRemover
-										onClick={() => onClickModal("confirmacao")}
-									></ButtonRemover>
+									<ButtonRemover onClick={() => onClickModal("confirmacao")} />
 								</div>
 							)}
 							<Paginacao
 								paginaAtual={currentPage}
 								setPaginaAtual={setCurrentPage}
 								totalPaginas={totalPages}
-							></Paginacao>
+							/>
 						</div>
 					</motion.div>
 				</AnimatePresence>
 			</section>
+
+			{modal === "exportar" && (
+				<Modal
+					onCloseModal={onCloseModal}
+					size={"small"}
+					title={"Exportar Empresas"}
+				>
+					<div className="flex space-x-4 p-4">
+						<div
+							onClick={() => handleExportarEmpresas("csv")}
+							className="flex flex-col space-y-8 text-azul-ora hover:text-green-600 border-1 border-gray-500 rounded-lg shadow-xl p-4 h-full hover:scale-105
+						 transition-all duration-300 cursor-pointer justify-center items-center"
+						>
+							<h2 className="text-lg font-semibold ">Exportar para CSV</h2>
+							<FaFileCsv size={102} className="text-green-700"></FaFileCsv>
+						</div>
+						<div
+							onClick={() => handleExportarEmpresas("pdf")}
+							className="flex flex-col space-y-8 border-1 hover:text-red-600 text-azul-ora border-gray-500 rounded-lg shadow-xl p-4 h-full hover:scale-105
+						 transition-all duration-300 cursor-pointer justify-center items-center"
+						>
+							<h2 className="text-lg font-semibold ">Exportar para PDF</h2>
+							<FaFilePdf className="text-red-700" size={102}></FaFilePdf>
+						</div>
+					</div>
+				</Modal>
+			)}
 			{modal === "adicionar" && (
 				<Modal
 					onCloseModal={onCloseModal}

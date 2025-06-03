@@ -1,4 +1,4 @@
-package com.controller_oraculus.orac.controller;
+package com.controller_oraculus.orac.auxiliar;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationResponse {
+public class AuthResponse {
     private String token;
+    private String nome;
 }

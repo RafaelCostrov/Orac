@@ -3,6 +3,12 @@ package com.controller_oraculus.orac.service;
 import com.controller_oraculus.orac.dto.EmpresaDTO;
 import com.controller_oraculus.orac.model.Empresa;
 import com.controller_oraculus.orac.repositorio.EmpresaRepository;
+import com.lowagie.text.*;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
+import java.awt.Color;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
@@ -13,7 +19,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -125,5 +134,98 @@ public class EmpresaService {
         empresaRepository.delete(empresa);
     }
 
+    public void exportarCsv(HttpServletResponse response) throws IOException {
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=empresas.csv");
+
+        List<Empresa> empresas = empresaRepository.findAll();
+
+
+        try (PrintWriter writer = response.getWriter()) {
+            writer.println("cod,nome,cnpj,regime,cidade,vencimento,tipo do certificado, ceo");
+            for (Empresa empresa : empresas) {
+                writer.printf("%s,%s,%s,%s,%s,%s,%s,%s%n",
+                        empresa.getCod(),
+                        empresa.getNome(),
+                        empresa.getCnpj(),
+                        empresa.getRegime(),
+                        empresa.getCidade(),
+                        empresa.getVencimento(),
+                        empresa.getTipoCertificado(),
+                        empresa.getCeo()
+                );
+            }
+
+        }
+    }
+
+    private PdfPCell celulaComEstilo(String texto, Font fonte, Color fundo, int alinhamento) {
+        PdfPCell cell = new PdfPCell(new Phrase(texto != null ? texto : "", fonte));
+        cell.setBackgroundColor(fundo);
+        cell.setPadding(5);
+        cell.setHorizontalAlignment(alinhamento);
+        return cell;
+    }
+
+    private String formatarCnpj(String cnpj) {
+        if (cnpj == null || cnpj.length() != 14) return cnpj;
+        return cnpj.replaceFirst("(\\d{2})(\\d{3})(\\d{3})(\\d{4})(\\d{2})", "$1.$2.$3/$4-$5");
+    }
+
+    private String formatarData(LocalDate data) {
+        return data != null ? data.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "-";
+    }
+
+    private String formatarTipo(String tipo) {
+        return tipo != null ? tipo : "-";
+    }
+
+    public void exportarPdf(HttpServletResponse response) throws IOException, DocumentException {
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=empresas.pdf");
+
+        List<Empresa> empresas = empresaRepository.findAll();
+        try {
+            Document document = new Document(PageSize.A4.rotate());
+            PdfWriter.getInstance(document, response.getOutputStream());
+            document.open();
+            document.addTitle("Empresas");
+
+            Font fonteCabecalho = new Font(Font.HELVETICA, 12, Font.BOLD, new Color(255, 255, 255));
+            Font fonteCelula = new Font(Font.HELVETICA, 10, Font.NORMAL, new Color(0,0,0));
+
+            PdfPTable table = new PdfPTable(8);
+            table.setWidthPercentage(100);
+            table.setWidths(new float[] { 1f, 3f, 2f, 1.8f, 2f, 1.8f, 1.5f, 1.8f });
+            String[] colunas = {"Cód.", "Empresa", "CNPJ", "Regime", "Cidade", "Vencimento", "Tipo do certificado", "Ceo"};
+            PdfPCell cell;
+            for (String coluna : colunas) {
+                cell = new PdfPCell(new Phrase(coluna, fonteCabecalho));
+                cell.setBackgroundColor(new Color(0, 130, 199));
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cell.setPadding(5);
+                table.addCell(cell);
+            }
+            boolean corAlternada = false;
+            for (Empresa empresa : empresas) {
+                Color corFundo = corAlternada ? new Color(232, 245, 255) : new Color(255, 255, 255);
+                table.addCell(celulaComEstilo(String.valueOf(empresa.getCod()), fonteCelula, corFundo, Element.ALIGN_CENTER));
+                table.addCell(celulaComEstilo(empresa.getNome(), fonteCelula, corFundo, Element.ALIGN_LEFT)); // só "Empresa" alinhada à esquerda
+                table.addCell(celulaComEstilo(formatarCnpj(empresa.getCnpj()), fonteCelula, corFundo, Element.ALIGN_CENTER));
+                table.addCell(celulaComEstilo(empresa.getRegime(), fonteCelula, corFundo, Element.ALIGN_CENTER));
+                table.addCell(celulaComEstilo(empresa.getCidade(), fonteCelula, corFundo, Element.ALIGN_CENTER));
+                table.addCell(celulaComEstilo(formatarData(empresa.getVencimento()), fonteCelula, corFundo, Element.ALIGN_CENTER));
+                table.addCell(celulaComEstilo(formatarTipo(empresa.getTipoCertificado()), fonteCelula, corFundo, Element.ALIGN_CENTER));
+                table.addCell(celulaComEstilo(empresa.getCeo(), fonteCelula, corFundo, Element.ALIGN_CENTER));
+
+                corAlternada = !corAlternada;
+            }
+            document.add(table);
+            document.close();
+        } catch (DocumentException e) {
+            throw new DocumentException(e.getMessage());
+        }
+
+    }
 }
 
