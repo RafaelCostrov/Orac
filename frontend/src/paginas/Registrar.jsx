@@ -10,6 +10,7 @@ import oracPadrao from "../assets/images/orac-padrao.png";
 import GradientText from "../utils/GradientText";
 import BlurText from "../utils/BlurText";
 import { Link } from "react-router-dom";
+import { validarSenha } from "../utils/formatters";
 
 function Registrar() {
 	const [nome, setNome] = useState("");
@@ -20,6 +21,34 @@ function Registrar() {
 
 	const handleRegistrar = async () => {
 		try {
+			setErro("");
+			if (!nome || !email || !senha) {
+				setErro(
+					<p className="font-semibold">Todos os campos são obrigatórios.</p>
+				);
+				return;
+			}
+
+			const resultadoSenha = validarSenha(senha);
+			if (resultadoSenha.length > 0) {
+				setErro(
+					<div>
+						<p className="font-semibold">
+							A senha não atende aos requisitos mínimos:
+						</p>
+						<ul>
+							{resultadoSenha.map((erro, index) => (
+								<li key={index} className="text-left">
+									{erro}
+								</li>
+							))}
+						</ul>
+					</div>
+				);
+
+				return;
+			}
+
 			const response = await fetch(
 				"http://localhost:8080/api/v1/auth/registrar",
 				{
@@ -31,16 +60,35 @@ function Registrar() {
 				}
 			);
 			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error("Erro ao registrar: " + errorData.message);
+				// detecta se veio JSON
+				const isJson = response.headers
+					.get("Content-Type")
+					?.includes("application/json");
+
+				let mensagemErro;
+
+				if (isJson) {
+					const data = await response.json();
+					mensagemErro = data.message || JSON.stringify(data);
+				} else {
+					mensagemErro = await response.text();
+				}
+
+				throw new Error(mensagemErro);
 			}
 			const data = await response.json();
 			const token = data.token;
 			localStorage.setItem("token", token);
+			localStorage.setItem("nome", nome);
 			navigate("/");
 		} catch (error) {
 			console.error("Erro ao registrar:", error);
-			setErro("Erro ao criar conta. Tente novamente.");
+			setErro(
+				<>
+					<p className="font-semibold">Erro ao criar conta:</p>
+					<p>{error.message}</p>
+				</>
+			);
 		}
 	};
 
@@ -88,7 +136,7 @@ function Registrar() {
 					onChange={e => setSenha(e.target.value)}
 				/>
 
-				{erro && <p className="text-red-500 text-sm text-center">{erro}</p>}
+				{erro && <div className="text-red-500 text-sm text-center">{erro}</div>}
 
 				<Button onClick={handleRegistrar} color="azul">
 					Criar conta

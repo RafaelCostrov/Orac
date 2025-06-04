@@ -3,8 +3,11 @@ package com.controller_oraculus.orac.controller;
 import com.controller_oraculus.orac.auxiliar.AuthRequest;
 import com.controller_oraculus.orac.auxiliar.AuthResponse;
 import com.controller_oraculus.orac.auxiliar.RegisterRequest;
+import com.controller_oraculus.orac.exception.EmailJaCadastradoException;
 import com.controller_oraculus.orac.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,10 +22,19 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/registrar")
-    public ResponseEntity<AuthResponse> register(
-            @RequestBody RegisterRequest request
-    ) {
-       return ResponseEntity.ok(authService.registrar(request));
+    public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest request) {
+        try {
+            AuthResponse response = authService.registrar(request);
+            return ResponseEntity.ok(response);
+        } catch (EmailJaCadastradoException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Erro ao registrar: " + e.getMessage());
+        }
+
     }
 
 

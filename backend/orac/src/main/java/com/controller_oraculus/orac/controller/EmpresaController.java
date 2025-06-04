@@ -95,5 +95,16 @@ public class EmpresaController {
         empresaService.exportarPdf(response);
     }
 
+    @PostMapping("/empresas/importar")
+    public ResponseEntity<?> importarEmpresas(@RequestParam("file") MultipartFile file) {
+        try {
+            empresaService.importarCsv(file);
+            return ResponseEntity.ok("Empresas importadas com sucesso!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Erro ao importar empresas: " + e.getMessage());
+        }
+    }
+
 }
 

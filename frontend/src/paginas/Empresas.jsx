@@ -1,12 +1,7 @@
 import { IoAddCircle, IoSearchSharp } from "react-icons/io5";
+import { RiImportFill, RiExportFill } from "react-icons/ri";
 import { IoMdRemoveCircle } from "react-icons/io";
-import {
-	FaFilter,
-	FaTrash,
-	FaFileCsv,
-	FaFilePdf,
-	FaFileExport,
-} from "react-icons/fa";
+import { FaFilter, FaTrash, FaFileCsv, FaFilePdf } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import PerfectScrollbar from "react-perfect-scrollbar";
@@ -348,6 +343,72 @@ function Empresas({
 		}
 	};
 
+	const handleImportar = async () => {
+		setLoading(true);
+		const fileInput = document.createElement("input");
+		fileInput.type = "file";
+		fileInput.accept = ".csv";
+		fileInput.onchange = async e => {
+			const file = e.target.files[0];
+			if (!file) {
+				notifyErro("Nenhum arquivo selecionado.");
+				setLoading(false);
+				return;
+			}
+			if (file.type !== "text/csv") {
+				notifyErro("Por favor, selecione um arquivo CSV.");
+				setLoading(false);
+				return;
+			}
+			const formData = new FormData();
+			formData.append("file", file);
+			try {
+				const response = await fetch("/api/empresas/importar", {
+					method: "POST",
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+					body: formData,
+				});
+				const message = await response.text();
+				if (!response.ok) {
+					notifyErro(`Erro ao importar empresas: ${message}`);
+					setLoading(false);
+					throw new Error(message);
+				}
+				notifyAcerto("Empresas importadas com sucesso!");
+				onCloseModal();
+				limparForms();
+			} catch (error) {
+				console.error("Erro ao importar empresas:", error);
+				notifyErro("Erro ao importar empresas.");
+				setLoading(false);
+			}
+		};
+		fileInput.click();
+	};
+
+	const handleBaixarModelo = () => {
+		const cabecalho =
+			"cod;nome;cnpj;regime;cidade;vencimento;tipoCertificado;ceo";
+		const exemplo1 =
+			"1;Empresa A;12345678000100;Simples Nacional;São Paulo;15/07/2025;A1;CONTROLLER";
+		const exemplo2 =
+			"2;Empresa B;98765432000199;Lucro Presumido;Guarulhos;30/06/2025;A3;ORACULUS";
+
+		const conteudo = [cabecalho, exemplo1, exemplo2].join("\n");
+		const blob = new Blob([conteudo], { type: "text/csv;charset=utf-8;" });
+
+		const url = window.URL.createObjectURL(blob);
+		const a = document.createElement("a");
+		a.href = url;
+		a.download = "modelo_empresas.csv";
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+		window.URL.revokeObjectURL(url);
+	};
+
 	useEffect(() => {
 		fetchEmpresas(currentPage);
 	}, [currentPage]);
@@ -391,8 +452,15 @@ function Empresas({
 						Empresas
 					</h1>
 					<div className="flex justify-between items-center text-laranja-ora space-x-6 sm:space-x-2 md:space-x-4 lg:space-x-6">
+						<button onClick={() => onClickModal("importar")}>
+							<RiImportFill
+								size={28}
+								className="sm:size-5 md:size-6 lg:size-7 hover:scale-120 transition-all duration-200 cursor-pointer"
+								title="Importar"
+							/>
+						</button>
 						<button onClick={() => onClickModal("exportar")}>
-							<FaFileExport
+							<RiExportFill
 								size={28}
 								className="sm:size-5 md:size-6 lg:size-7 hover:scale-120 transition-all duration-200 cursor-pointer"
 								title="Exportar"
@@ -641,6 +709,41 @@ function Empresas({
 						>
 							<h2 className="text-lg font-semibold ">Exportar para PDF</h2>
 							<FaFilePdf className="text-red-700" size={102}></FaFilePdf>
+						</div>
+					</div>
+				</Modal>
+			)}
+			{modal === "importar" && (
+				<Modal
+					onCloseModal={onCloseModal}
+					size={"small"}
+					title={"Importar Empresas"}
+				>
+					<div className="flex flex-col space-y-4 items-center gap-4 p-4">
+						<h2 className="text-lg text-azul-ora">
+							Para importar, basta baixar o modelo e preencher conforme está
+							descrito.
+						</h2>
+						<div className="flex space-x-8 items-center justify-center w-full">
+							<div
+								onClick={() => handleBaixarModelo()}
+								className="flex flex-col space-y-8 border-1 hover:text-green-600 text-azul-ora border-gray-500 rounded-lg shadow-xl py-4 px-8 w-4/10 h-full hover:scale-105
+						 transition-all duration-300 cursor-pointer justify-center items-center"
+							>
+								<h2 className="text-lg font-semibold ">Baixar modelo</h2>
+								<FaFileCsv className="text-green-700" size={72}></FaFileCsv>
+							</div>
+							<div
+								onClick={() => handleImportar()}
+								className="flex flex-col space-y-8 border-1 hover:text-laranja-ora text-azul-ora border-gray-500 rounded-lg shadow-xl py-4 px-8 w-4/10 h-full hover:scale-105
+						 transition-all duration-300 cursor-pointer justify-center items-center"
+							>
+								<h2 className="text-lg font-semibold ">Importar empresas</h2>
+								<RiImportFill
+									className="text-laranja-ora"
+									size={72}
+								></RiImportFill>
+							</div>
 						</div>
 					</div>
 				</Modal>

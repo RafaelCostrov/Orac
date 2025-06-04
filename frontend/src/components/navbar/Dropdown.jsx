@@ -26,6 +26,8 @@ function Dropdown({ nome }) {
 
 	const handleLogout = () => {
 		localStorage.removeItem("token");
+		localStorage.removeItem("nome");
+		localStorage.removeItem("tasks");
 		window.location.href = "/login";
 	};
 

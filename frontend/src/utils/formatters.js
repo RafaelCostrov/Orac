@@ -47,3 +47,22 @@ export function formatarDataBD(dataStr) {
 	if (!dia || !mes || !ano) return "";
 	return `${ano}-${mes.padStart(2, "0")}-${dia.padStart(2, "0")}`;
 }
+
+export function validarSenha(senha) {
+	const requisitos = [
+		{ regex: /[a-z]/, mensagem: "• Pelo menos uma letra minúscula" },
+		{ regex: /[A-Z]/, mensagem: "• Pelo menos uma letra maiúscula" },
+		{ regex: /\d/, mensagem: "• Pelo menos um número" },
+		{
+			regex: /[\W_]/,
+			mensagem: "• Pelo menos um caractere especial (ex: ! @ # $ % _)",
+		},
+		{ regex: /.{8,}/, mensagem: "• No mínimo 8 caracteres" },
+	];
+
+	const mensagensErro = requisitos
+		.filter(req => !req.regex.test(senha))
+		.map(req => req.mensagem);
+
+	return mensagensErro;
+}

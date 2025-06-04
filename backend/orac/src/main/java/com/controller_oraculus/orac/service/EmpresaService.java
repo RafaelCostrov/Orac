@@ -7,7 +7,9 @@ import com.lowagie.text.*;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+
 import java.awt.Color;
+
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.persistence.criteria.Predicate;
@@ -17,9 +19,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -67,7 +72,7 @@ public class EmpresaService {
         empresaRepository.save(empresa);
     }
 
-    public Page<EmpresaDTO> filtrarEmpresas(Long cod, String nome, String cnpj, String regime, String cidade, String vencimentoMin, String vencimentoMax,  Pageable pageable) {
+    public Page<EmpresaDTO> filtrarEmpresas(Long cod, String nome, String cnpj, String regime, String cidade, String vencimentoMin, String vencimentoMax, Pageable pageable) {
         LocalDate minDate = vencimentoMin != null && !vencimentoMin.isEmpty() ? LocalDate.parse(vencimentoMin) : null;
         LocalDate maxDate = vencimentoMax != null && !vencimentoMax.isEmpty() ? LocalDate.parse(vencimentoMax) : null;
 
@@ -192,11 +197,11 @@ public class EmpresaService {
             document.addTitle("Empresas");
 
             Font fonteCabecalho = new Font(Font.HELVETICA, 12, Font.BOLD, new Color(255, 255, 255));
-            Font fonteCelula = new Font(Font.HELVETICA, 10, Font.NORMAL, new Color(0,0,0));
+            Font fonteCelula = new Font(Font.HELVETICA, 10, Font.NORMAL, new Color(0, 0, 0));
 
             PdfPTable table = new PdfPTable(8);
             table.setWidthPercentage(100);
-            table.setWidths(new float[] { 1f, 3f, 2f, 1.8f, 2f, 1.8f, 1.5f, 1.8f });
+            table.setWidths(new float[]{1f, 3f, 2f, 1.8f, 2f, 1.8f, 1.5f, 1.8f});
             String[] colunas = {"Cód.", "Empresa", "CNPJ", "Regime", "Cidade", "Vencimento", "Tipo do certificado", "Ceo"};
             PdfPCell cell;
             for (String coluna : colunas) {
@@ -227,5 +232,35 @@ public class EmpresaService {
         }
 
     }
+
+    public void importarCsv(MultipartFile file) throws IOException {
+        List<Empresa> empresas = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+            String linha;
+            boolean primeira = true;
+
+            while ((linha = reader.readLine()) != null) {
+                if (primeira) {
+                    primeira = false;
+                    continue;
+                }
+                String[] campos = linha.split(";"); // ou "," dependendo do separador
+                Empresa emp = new Empresa();
+                emp.setCod(Long.parseLong(campos[0]));
+                emp.setNome(campos[1]);
+                emp.setCnpj(campos[2]);
+                emp.setRegime(campos[3]);
+                emp.setCidade(campos[4]);
+                emp.setVencimento(LocalDate.parse(campos[5], DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                emp.setTipoCertificado(campos[6]);
+                emp.setCeo(campos[7]);
+
+                empresas.add(emp);
+            }
+            empresaRepository.saveAll(empresas);
+        }
+    }
 }
+
+
 

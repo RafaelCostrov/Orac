@@ -3,6 +3,7 @@ package com.controller_oraculus.orac.service;
 import com.controller_oraculus.orac.auxiliar.AuthRequest;
 import com.controller_oraculus.orac.auxiliar.AuthResponse;
 import com.controller_oraculus.orac.auxiliar.RegisterRequest;
+import com.controller_oraculus.orac.exception.EmailJaCadastradoException;
 import com.controller_oraculus.orac.model.Usuario;
 import com.controller_oraculus.orac.repositorio.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,11 @@ public class AuthService {
 
     public AuthResponse registrar(RegisterRequest request) {
         try {
+
+            if (usuarioRepository.existsByEmail(request.getEmail())) {
+                throw new EmailJaCadastradoException(request.getEmail());
+            }
+
             Usuario usuario = new Usuario(
                     request.getNome(),
                     request.getEmail(),
@@ -35,6 +41,7 @@ public class AuthService {
             var jwtToken = jwtService.gerarToken(usuario);
             return AuthResponse.builder()
                     .token(jwtToken)
+                    .nome(usuario.getNome())
                     .build();
         } catch (Exception e) {
             logger.error("Erro ao registrar: {}", e.getMessage());

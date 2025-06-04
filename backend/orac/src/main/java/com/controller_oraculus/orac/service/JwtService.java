@@ -17,7 +17,7 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    private static final String AUTH_KEY = "e3f41c9a7b2a5e8d46f7c1d0a2b3e9cf87da1f02c65e3bd79a9d8a6c3f4b1e20";
+    private static final String AUTH_KEY = System.getenv("AUTH_KEY");
 
     public <T> T extrairClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extrairClaims(token);
