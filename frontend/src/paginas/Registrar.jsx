@@ -50,7 +50,7 @@ function Registrar() {
 			}
 
 			const response = await fetch(
-				"http://localhost:8080/api/v1/auth/registrar",
+				"http://192.168.15.3:8080/api/v1/auth/registrar",
 				{
 					method: "POST",
 					headers: {
@@ -60,7 +60,6 @@ function Registrar() {
 				}
 			);
 			if (!response.ok) {
-				// detecta se veio JSON
 				const isJson = response.headers
 					.get("Content-Type")
 					?.includes("application/json");

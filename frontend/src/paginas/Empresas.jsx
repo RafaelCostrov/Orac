@@ -2,9 +2,9 @@ import { IoAddCircle, IoSearchSharp } from "react-icons/io5";
 import { RiImportFill, RiExportFill } from "react-icons/ri";
 import { IoMdRemoveCircle } from "react-icons/io";
 import { FaFilter, FaTrash, FaFileCsv, FaFilePdf } from "react-icons/fa";
+import { FiMenu, FiX } from "react-icons/fi";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import PerfectScrollbar from "react-perfect-scrollbar";
 import "react-perfect-scrollbar/dist/css/styles.css";
 import Paginacao from "../components/comum/Paginacao.jsx";
 import MenuFiltro from "../components/comum/MenuFiltro.jsx";
@@ -50,6 +50,7 @@ function Empresas({
 	const [focado, setFocado] = useState(false);
 	const [removerLote, setRemoverLote] = useState(false);
 	const [empresasSelecionadas, setEmpresasSelecionadas] = useState([]);
+	const [menuOpen, setMenuOpen] = useState(false);
 
 	const camposObrigatorios = {
 		cod: "Código",
@@ -311,12 +312,27 @@ function Empresas({
 	const handleExportarEmpresas = async formato => {
 		setLoading(true);
 		try {
-			const response = await fetch(`/api/empresas/exportar/${formato}`, {
-				method: "GET",
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			});
+			const params = new URLSearchParams();
+
+			if (cod) params.append("cod", cod);
+			if (nome) params.append("nome", nome);
+			if (cnpj) params.append("cnpj", cnpj);
+			if (regime) params.append("regime", regime);
+			if (cidade) params.append("cidade", cidade);
+			if (vencimentoMin)
+				params.append("vencimentoMin", formatarDataBD(vencimentoMin));
+			if (vencimentoMax)
+				params.append("vencimentoMax", formatarDataBD(vencimentoMax));
+
+			const response = await fetch(
+				`/api/empresas/exportar/${formato}?${params.toString()}`,
+				{
+					method: "GET",
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			);
 			if (!response.ok) {
 				const message = await response.text();
 				notifyErro(`Erro ao exportar empresas: ${message}`);
@@ -446,48 +462,105 @@ function Empresas({
 
 	return (
 		<>
-			<section className="flex flex-col p-4 h-screen sm:p-2 md:p-4">
-				<div className="flex justify-between bg-azul-ora rounded-t-2xl py-2 px-10 sm:px-4 sm:py-2 md:px-6 lg:px-10">
-					<h1 className="text-3xl font-bold text-laranja-ora sm:text-xl md:text-2xl lg:text-3xl">
-						Empresas
-					</h1>
-					<div className="flex justify-between items-center text-laranja-ora space-x-6 sm:space-x-2 md:space-x-4 lg:space-x-6">
-						<button onClick={() => onClickModal("importar")}>
-							<RiImportFill
-								size={28}
-								className="sm:size-5 md:size-6 lg:size-7 hover:scale-120 transition-all duration-200 cursor-pointer"
-								title="Importar"
-							/>
-						</button>
-						<button onClick={() => onClickModal("exportar")}>
-							<RiExportFill
-								size={28}
-								className="sm:size-5 md:size-6 lg:size-7 hover:scale-120 transition-all duration-200 cursor-pointer"
-								title="Exportar"
-							/>
-						</button>
-						<button onClick={() => onClickModal("adicionar")}>
-							<IoAddCircle
-								size={32}
-								className="sm:size-6 md:size-7 lg:size-8 hover:scale-120 transition-all duration-200 cursor-pointer"
-								title="Adicionar empresa"
-							/>
-						</button>
-						<button onClick={() => setRemoverLote(!removerLote)}>
-							<IoMdRemoveCircle
-								size={32}
-								className="sm:size-6 md:size-7 lg:size-8 hover:scale-120 transition-all duration-200 cursor-pointer"
-								title="Remover empresa"
-							/>
-						</button>
-						<button onClick={onClickFilter}>
-							<FaFilter
-								size={24}
-								className="sm:size-5 md:size-6 hover:scale-120 transition-all duration-200 cursor-pointer"
-								title="Filtrar empresas"
-							/>
+			<section className="flex flex-col h-dvh p-2 md:p-4">
+				<div className="flex flex-col md:flex-row md:justify-between bg-azul-ora rounded-t-2xl">
+					{/*Visível apenas em md ou maior*/}
+					<div className="hidden md:flex w-full px-4 py-2 justify-between items-center space-x-6">
+						<h1 className="font-bold text-laranja-ora text-2xl sm:text-lg md:text-xl lg:text-2xl">
+							Empresas
+						</h1>
+						<div className="text-laranja-ora flex space-x-4">
+							<button onClick={() => onClickModal("importar")}>
+								<RiImportFill
+									size={28}
+									className="hover:scale-120 transition-all duration-200 cursor-pointer"
+									title="Importar"
+								/>
+							</button>
+							<button onClick={() => onClickModal("exportar")}>
+								<RiExportFill
+									size={28}
+									className="hover:scale-120 transition-all duration-200 cursor-pointer"
+									title="Exportar"
+								/>
+							</button>
+							<button onClick={() => onClickModal("adicionar")}>
+								<IoAddCircle
+									size={32}
+									className="hover:scale-120 transition-all duration-200 cursor-pointer"
+									title="Adicionar empresa"
+								/>
+							</button>
+							<button onClick={() => setRemoverLote(!removerLote)}>
+								<IoMdRemoveCircle
+									size={32}
+									className="hover:scale-120 transition-all duration-200 cursor-pointer"
+									title="Remover empresa"
+								/>
+							</button>
+							<button onClick={onClickFilter}>
+								<FaFilter
+									size={24}
+									className="hover:scale-120 transition-all duration-200 cursor-pointer"
+									title="Filtrar empresas"
+								/>
+							</button>
+						</div>
+					</div>
+
+					{/* Botão hamburguer visível apenas em telas pequenas */}
+					<div className="flex md:hidden justify-between px-3 items-center py-1">
+						<h1 className="font-bold text-laranja-ora text-xl">Empresas</h1>
+						<button
+							onClick={() => setMenuOpen(!menuOpen)}
+							className="text-laranja-ora"
+						>
+							{menuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
 						</button>
 					</div>
+
+					{menuOpen && (
+						<div className="flex flex-col px-4 py-2 items-end space-y-4 md:hidden text-laranja-ora">
+							<div className="flex items-center gap-4">
+								<button
+									className="flex items-center gap-2 active:scale-95 transition-all duration-200"
+									onClick={() => onClickModal("importar")}
+								>
+									Importar <RiImportFill size={24} title="Importar" />
+								</button>
+								<button
+									className="flex items-center gap-2 active:scale-95 transition-all duration-200"
+									onClick={() => onClickModal("exportar")}
+								>
+									Exportar
+									<RiExportFill size={24} title="Exportar" />
+								</button>
+							</div>
+							<div className="flex items-center gap-4">
+								<button
+									className="flex items-center gap-2 active:scale-95 transition-all duration-200"
+									onClick={() => onClickModal("adicionar")}
+								>
+									Adicionar
+									<IoAddCircle size={26} title="Adicionar empresa" />
+								</button>
+								<button
+									className="flex items-center gap-2 active:scale-95 transition-all duration-200"
+									onClick={() => setRemoverLote(!removerLote)}
+								>
+									Remover
+									<IoMdRemoveCircle size={26} title="Remover empresa" />
+								</button>
+							</div>
+							<button
+								className="flex items-center gap-2 active:scale-95 transition-all duration-200"
+								onClick={onClickFilter}
+							>
+								Filtrar
+								<FaFilter size={22} title="Filtrar empresas" />
+							</button>
+						</div>
+					)}
 				</div>
 				<MenuFiltro
 					isFiltered={isFiltered}
@@ -501,42 +574,42 @@ function Empresas({
 					<InputUnico
 						nomeInput={"Código"}
 						type={"number"}
-						classNameDiv={"col-start-1 row-start-1"}
+						classNameDiv={"md:col-start-1 md:row-start-1"}
 						value={cod}
 						onChange={e => setCod(e.target.value)}
 					/>
 					<InputUnico
 						nomeInput={"Nome"}
 						type={"text"}
-						classNameDiv={"col-start-1 row-start-2 col-span-2"}
+						classNameDiv={"md:col-start-1 md:row-start-2 md:col-span-2"}
 						value={nome}
 						onChange={e => setNome(e.target.value)}
 					/>
 					<InputUnico
 						nomeInput={"CNPJ"}
 						type={"text"}
-						classNameDiv={"col-start-2 row-start-1"}
+						classNameDiv={"md:col-start-2 md:row-start-1"}
 						value={cnpj}
 						onChange={e => setCnpj(formatarDataEscrita(e.target.value))}
 					/>
 					<InputUnico
 						nomeInput={"Regime"}
 						type={"text"}
-						classNameDiv={"col-start-3 row-start-2"}
+						classNameDiv={"md:col-start-3 md:row-start-2"}
 						value={regime}
 						onChange={e => setRegime(e.target.value)}
 					/>
 					<InputUnico
 						nomeInput={"Cidade"}
 						type={"text"}
-						classNameDiv={"col-start-3 row-start-1"}
+						classNameDiv={"md:col-start-3 md:row-start-1"}
 						value={cidade}
 						onChange={e => setCidade(e.target.value)}
 					/>
 					<InputDuplo
 						nomeInput={"Vencimento"}
 						type={"text"}
-						classNameDiv={"col-start-4 row-start-2"}
+						classNameDiv={"md:col-start-4 md:row-start-2"}
 						onMinChange={e =>
 							setVencimentoMin(formatarDataEscrita(e.target.value))
 						}
@@ -551,55 +624,62 @@ function Empresas({
 					<motion.div
 						layout
 						transition={{ duration: 0.4, ease: "easeInOut" }}
-						className="bg-white p-4 rounded-b-lg shadow-md flex flex-col max-h-[calc(100vh-150px)] sm:p-2 md:p-4"
+						className=" bg-white rounded-b-lg shadow-md flex flex-col max-h-[calc(100dvh-80px)] md:max-h-[calc(100dvh-150px)] p-2 md:p-4"
 					>
-						<table className="bg-white border border-gray-300 w-full table-fixed">
-							<thead>
-								<tr className="bg-gray-200 text-azul-ora">
-									<th className="py-3 px-2 border-b border-gray-300 w-1/20 sm:text-xs md:text-sm">
-										Cód
-									</th>
-									<th className="py-3 px-2 border-b border-gray-300 text-left sm:text-xs md:text-sm">
-										Nome
-									</th>
-									<th className="py-3 px-2 border-b border-gray-300 w-3/20 sm:text-xs md:text-sm">
-										CNPJ
-									</th>
-									<th className="py-3 px-2 border-b border-gray-300 w-3/20 sm:text-xs md:text-sm">
-										Regime
-									</th>
-									<th className="py-3 px-2 border-b border-gray-300 w-2/20 sm:text-xs md:text-sm">
-										Cidade
-									</th>
-									<th className="py-3 px-2 border-b border-gray-300 w-3/20 sm:text-xs md:text-sm">
-										Vencimento Cert.
-									</th>
-									<th className="py-3 px-2 border-b border-gray-300 w-2/20 sm:text-xs md:text-sm">
-										C&O
-									</th>
-									{removerLote && (
-										<th className="py-3 px-2 border-b border-gray-300 w-1/20 sm:text-xs md:text-sm">
-											<div className="flex justify-center items-center">
-												<FaTrash />
-											</div>
+						{/* Tabela dupla para telas maiores */}
+						<div className="hidden lg:block overflow-x-auto w-full md:overflow-visible scrollbar-hide">
+							<table className="bg-white border border-gray-300 w-full lg:table-fixed min-w-[800px]">
+								<thead>
+									<tr className="bg-gray-200 text-azul-ora">
+										<th className="py-3 px-2 border-b border-gray-300 w-1/20 text-xs md:text-sm">
+											Cód
 										</th>
-									)}
-								</tr>
-							</thead>
-						</table>
-						<div className="flex-1 overflow-auto">
-							<PerfectScrollbar>
-								<table className="border border-gray-300 w-full table-fixed">
+										<th className="py-3 px-2 border-b border-gray-300 text-left text-xs md:text-sm">
+											Nome
+										</th>
+										<th className="py-3 px-2 border-b border-gray-300 w-3/20 text-xs md:text-sm">
+											CNPJ
+										</th>
+										<th className="py-3 px-2 border-b border-gray-300 w-3/20 text-xs md:text-sm">
+											Regime
+										</th>
+										<th className="py-3 px-2 border-b border-gray-300 w-2/20 text-xs md:text-sm">
+											Cidade
+										</th>
+										<th className="py-3 px-2 border-b border-gray-300 w-3/20 text-xs md:text-sm">
+											Vencimento Cert.
+										</th>
+										<th className="py-3 px-2 border-b border-gray-300 w-2/20 text-xs md:text-sm">
+											C&O
+										</th>
+										{removerLote && (
+											<th className="py-3 px-2 border-b border-gray-300 w-1/20 text-xs md:text-sm">
+												<div className="flex justify-center items-center">
+													<FaTrash />
+												</div>
+											</th>
+										)}
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<div className="hidden md:block md:flex-1 overflow-auto scrollbar-hide ">
+							<div className="overflow-x-auto w-full md:overflow-visible">
+								<table className="border border-gray-300 w-full lg:table-fixed min-w-[700px]">
 									<tbody className="text-center">
 										{empresas.map((empresa, index) => (
 											<tr
 												key={empresa.cod}
 												className={`transition-all duration-300 cursor-pointer ${
-													index % 2 === 0 ? "bg-white" : "bg-gray-100"
-												} ${
 													empresa.ceo === "CONTROLLER"
 														? "hover:bg-laranja-ora-200"
 														: "hover:bg-azul-ora-300"
+												} ${
+													empresasSelecionadas.includes(empresa.cod)
+														? "bg-red-100 hover:bg-red-200"
+														: index % 2 === 0
+														? "bg-white"
+														: "bg-gray-100"
 												}`}
 												onClick={
 													removerLote
@@ -616,7 +696,7 @@ function Empresas({
 														  }
 												}
 											>
-												<td className="py-3 px-2 border-b border-gray-300 truncate whitespace-nowrap overflow-hidden w-1/20 sm:text-xs md:text-sm">
+												<td className="py-3 px-2 border-b border-gray-300 md:truncate md:whitespace-nowrap md:overflow-hidden md:w-2/20 sm:text-xs md:text-sm">
 													{empresa.cod}
 												</td>
 												<td
@@ -625,26 +705,26 @@ function Empresas({
 												>
 													{empresa.nome}
 												</td>
-												<td className="py-3 px-2 border-b border-gray-300 truncate whitespace-nowrap overflow-hidden w-3/20 sm:text-xs md:text-sm">
+												<td className="py-3 px-2 border-b border-gray-300 md:truncate md:whitespace-nowrap md:overflow-hidden md:w-3/20 sm:text-xs md:text-sm">
 													{formatarCNPJ(empresa.cnpj)}
 												</td>
-												<td className="py-3 px-2 border-b border-gray-300 truncate whitespace-nowrap overflow-hidden w-3/20 sm:text-xs md:text-sm">
+												<td className="py-3 px-2 border-b border-gray-300 md:truncate md:whitespace-nowrap md:overflow-hidden md:w-3/20 sm:text-xs md:text-sm">
 													{empresa.regime}
 												</td>
 												<td
 													title={empresa.cidade}
-													className="py-3 px-2 border-b border-gray-300 truncate whitespace-nowrap overflow-hidden w-2/20 sm:text-xs md:text-sm"
+													className="py-3 px-2 border-b border-gray-300 md:truncate md:whitespace-nowrap md:overflow-hidden md:w-2/20 sm:text-xs md:text-sm"
 												>
 													{empresa.cidade}
 												</td>
-												<td className="py-3 px-2 border-b border-gray-300 truncate whitespace-nowrap overflow-hidden w-3/20 sm:text-xs md:text-sm">
+												<td className="py-3 px-2 border-b border-gray-300 md:truncate md:whitespace-nowrap md:overflow-hidden md:w-3/20 sm:text-xs md:text-sm">
 													{empresa.vencimento}
 												</td>
-												<td className="py-3 px-2 border-b border-gray-300 truncate whitespace-nowrap overflow-hidden w-2/20 sm:text-xs md:text-sm">
+												<td className="py-3 px-2 border-b border-gray-300 md:truncate md:whitespace-nowrap md:overflow-hidden md:w-2/20 sm:text-xs md:text-sm">
 													{empresa.ceo}
 												</td>
 												{removerLote && (
-													<td className="py-3 px-2 border-b border-gray-300 truncate whitespace-nowrap overflow-hidden w-1/20 sm:text-xs md:text-sm">
+													<td className="py-3 px-2 border-b border-gray-300 md:truncate md:whitespace-nowrap md:overflow-hidden md:w-1/20 sm:text-xs md:text-sm">
 														<input
 															type="checkbox"
 															checked={empresasSelecionadas.includes(
@@ -669,11 +749,130 @@ function Empresas({
 										))}
 									</tbody>
 								</table>
-							</PerfectScrollbar>
+							</div>
 						</div>
-						<div className="flex justify-end gap-6 items-end sm:gap-2 md:gap-4 lg:gap-6">
+
+						{/* Tabela única para telas menores */}
+						<div className="block lg:hidden overflow-x-auto scrollbar-hide w-full">
+							<table className="bg-white border border-gray-300 w-full lg:table-fixed min-w-[800px]">
+								<thead>
+									<tr className="bg-gray-200 text-azul-ora">
+										<th className="py-3 px-2 border-b border-gray-300 w-1/20 text-xs md:text-sm">
+											Cód
+										</th>
+										<th className="py-3 px-2 border-b border-gray-300 text-left text-xs md:text-sm">
+											Nome
+										</th>
+										<th className="py-3 px-2 border-b border-gray-300 w-3/20 text-xs md:text-sm">
+											CNPJ
+										</th>
+										<th className="py-3 px-2 border-b border-gray-300 w-3/20 text-xs md:text-sm">
+											Regime
+										</th>
+										<th className="py-3 px-2 border-b border-gray-300 w-2/20 text-xs md:text-sm">
+											Cidade
+										</th>
+										<th className="py-3 px-2 border-b border-gray-300 w-3/20 text-xs md:text-sm">
+											Vencimento Cert.
+										</th>
+										<th className="py-3 px-2 border-b border-gray-300 w-2/20 text-xs md:text-sm">
+											C&O
+										</th>
+										{removerLote && (
+											<th className="py-3 px-2 border-b border-gray-300 w-1/20 text-xs md:text-sm">
+												<div className="flex justify-center items-center">
+													<FaTrash />
+												</div>
+											</th>
+										)}
+									</tr>
+								</thead>
+								<tbody className="text-center">
+									{empresas.map((empresa, index) => (
+										<tr
+											key={empresa.cod}
+											className={`transition-all duration-300 cursor-pointer ${
+												empresa.ceo === "CONTROLLER"
+													? "hover:bg-laranja-ora-200"
+													: "hover:bg-azul-ora-300"
+											} ${
+												empresasSelecionadas.includes(empresa.cod)
+													? "bg-red-100 hover:bg-red-200"
+													: index % 2 === 0
+													? "bg-white"
+													: "bg-gray-100"
+											}`}
+											onClick={
+												removerLote
+													? () => {
+															setEmpresasSelecionadas(prev =>
+																prev.includes(empresa.cod)
+																	? prev.filter(cod => cod !== empresa.cod)
+																	: [...prev, empresa.cod]
+															);
+													  }
+													: () => {
+															onClickModal("detalhes");
+															setEmpresaSelecionada(empresa);
+													  }
+											}
+										>
+											<td className="py-3 px-2 border-b border-gray-300 text-xs ">
+												{empresa.cod}
+											</td>
+											<td
+												title={empresa.nome}
+												className="py-3 px-2 border-b border-gray-300 text-xs max-w-[300px] truncate whitespace-nowrap overflow-hidden text-left"
+											>
+												{empresa.nome}
+											</td>
+											<td className="py-3 px-2 border-b border-gray-300 text-xs  truncate">
+												{formatarCNPJ(empresa.cnpj)}
+											</td>
+											<td className="py-3 px-2 border-b border-gray-300 text-xs ">
+												{empresa.regime}
+											</td>
+											<td
+												title={empresa.cidade}
+												className="py-3 px-2 border-b border-gray-300 text-xs "
+											>
+												{empresa.cidade}
+											</td>
+											<td className="py-3 px-2 border-b border-gray-300 text-xs ">
+												{empresa.vencimento}
+											</td>
+											<td className="py-3 px-2 border-b border-gray-300 text-xs ">
+												{empresa.ceo}
+											</td>
+											{removerLote && (
+												<td className="py-3 px-2 border-b border-gray-300 text-xs ">
+													<input
+														type="checkbox"
+														checked={empresasSelecionadas.includes(empresa.cod)}
+														onChange={e => {
+															if (e.target.checked) {
+																setEmpresasSelecionadas(prev => [
+																	...prev,
+																	empresa.cod,
+																]);
+															} else {
+																setEmpresasSelecionadas(prev =>
+																	prev.filter(cod => cod !== empresa.cod)
+																);
+															}
+														}}
+													/>
+												</td>
+											)}
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+
+						<div className="flex pb-5 md:pb-0 lg:flex-row justify-end md:items-end sm:gap-2 md:gap-4 lg:gap-6">
 							{removerLote && (
-								<div>
+								<div className="mt-4">
 									<ButtonRemover onClick={() => onClickModal("confirmacao")} />
 								</div>
 							)}
@@ -730,7 +929,7 @@ function Empresas({
 								className="flex flex-col space-y-8 border-1 hover:text-green-600 text-azul-ora border-gray-500 rounded-lg shadow-xl py-4 px-8 w-4/10 h-full hover:scale-105
 						 transition-all duration-300 cursor-pointer justify-center items-center"
 							>
-								<h2 className="text-lg font-semibold ">Baixar modelo</h2>
+								<h2 className="text-lg font-semibold ">Modelo</h2>
 								<FaFileCsv className="text-green-700" size={72}></FaFileCsv>
 							</div>
 							<div
@@ -738,7 +937,7 @@ function Empresas({
 								className="flex flex-col space-y-8 border-1 hover:text-laranja-ora text-azul-ora border-gray-500 rounded-lg shadow-xl py-4 px-8 w-4/10 h-full hover:scale-105
 						 transition-all duration-300 cursor-pointer justify-center items-center"
 							>
-								<h2 className="text-lg font-semibold ">Importar empresas</h2>
+								<h2 className="text-lg font-semibold ">Importar</h2>
 								<RiImportFill
 									className="text-laranja-ora"
 									size={72}

@@ -4,11 +4,11 @@ import { IoIosClose } from "react-icons/io";
 
 function Modal({ onCloseModal, modal, buttons, size, title, children }) {
 	const sizes = {
-		mini: "w-2/10 h-4/10",
-		small: "w-3/10 h-5/10",
-		medium: "w-4/10 h-6/10",
-		large: "w-5/10 h-7/10",
-		extraLarge: "w-6/10 h-8/10",
+		mini: "h-5/10 lg:w-2/10 lg:h-4/10",
+		small: "h-5/10 lg:w-3/10 lg:h-5/10",
+		medium: "h-5/10 lg:w-4/10 lg:h-6/10",
+		large: "h-5/10 lg:w-5/10 lg:h-7/10",
+		extraLarge: "h-5/10 lg:w-6/10 lg:h-8/10",
 	};
 
 	const modalRef = useRef(null);
@@ -33,7 +33,7 @@ function Modal({ onCloseModal, modal, buttons, size, title, children }) {
 		<AnimatePresence>
 			{modal !== null && (
 				<motion.div
-					className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+					className="fixed inset-0 z-50 flex text-xs md:text-sm items-center justify-center bg-black/50"
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
 					exit={{ opacity: 0 }}

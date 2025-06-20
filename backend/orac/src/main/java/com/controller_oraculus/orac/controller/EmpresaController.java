@@ -86,13 +86,31 @@ public class EmpresaController {
     }
 
     @GetMapping("/empresas/exportar/csv")
-    public void exportarCsv(HttpServletResponse response) throws IOException {
-        empresaService.exportarCsv(response);
+    public void exportarCsv(
+            @RequestParam(required = false) Long cod,
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String cnpj,
+            @RequestParam(required = false) String regime,
+            @RequestParam(required = false) String cidade,
+            @RequestParam(required = false) String vencimentoMin,
+            @RequestParam(required = false) String vencimentoMax,
+            HttpServletResponse response) throws IOException {
+        var empresas = empresaService.filtrarEmpresasSemPag(cod, nome, cnpj, regime, cidade, vencimentoMin, vencimentoMax);
+        empresaService.exportarCsv(response, empresas);
     }
 
     @GetMapping("/empresas/exportar/pdf")
-    public void exportarPdf(HttpServletResponse response) throws IOException, DocumentException {
-        empresaService.exportarPdf(response);
+    public void exportarPdf(
+            @RequestParam(required = false) Long cod,
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String cnpj,
+            @RequestParam(required = false) String regime,
+            @RequestParam(required = false) String cidade,
+            @RequestParam(required = false) String vencimentoMin,
+            @RequestParam(required = false) String vencimentoMax,
+            HttpServletResponse response) throws IOException, DocumentException {
+        var empresas = empresaService.filtrarEmpresasSemPag(cod, nome, cnpj, regime, cidade, vencimentoMin, vencimentoMax);
+        empresaService.exportarPdf(response, empresas);
     }
 
     @PostMapping("/empresas/importar")

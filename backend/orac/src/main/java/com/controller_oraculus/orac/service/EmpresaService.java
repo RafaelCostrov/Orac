@@ -115,6 +115,25 @@ public class EmpresaService {
         return new PageImpl<>(dtos, pageable, empresasPage.getTotalElements());
     }
 
+    public List<Empresa> filtrarEmpresasSemPag(Long cod, String nome, String cnpj, String regime, String cidade, String vencimentoMin, String vencimentoMax) {
+        LocalDate minDate = vencimentoMin != null && !vencimentoMin.isEmpty() ? LocalDate.parse(vencimentoMin) : null;
+        LocalDate maxDate = vencimentoMax != null && !vencimentoMax.isEmpty() ? LocalDate.parse(vencimentoMax) : null;
+        return empresaRepository.findAll((root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (cod != null) predicates.add(cb.equal(root.get("cod"), cod));
+            if (nome != null && !nome.isEmpty()) predicates.add(cb.like(cb.lower(root.get("nome")), "%" + nome.toLowerCase() + "%"));
+            if (cnpj != null && !cnpj.isEmpty()) {
+                String cnpjLimpo = cnpj.replaceAll("\\D", "");
+                predicates.add(cb.like(cb.function("regexp_replace", String.class, root.get("cnpj"), cb.literal("[^0-9]"), cb.literal("")), "%" + cnpjLimpo + "%"));
+            }
+            if (regime != null && !regime.isEmpty()) predicates.add(cb.like(cb.lower(root.get("regime")), "%" + regime.toLowerCase() + "%"));
+            if (cidade != null && !cidade.isEmpty()) predicates.add(cb.like(cb.lower(root.get("cidade")), "%" + cidade.toLowerCase() + "%"));
+            if (minDate != null) predicates.add(cb.greaterThanOrEqualTo(root.get("vencimento"), minDate));
+            if (maxDate != null) predicates.add(cb.lessThanOrEqualTo(root.get("vencimento"), maxDate));
+            return cb.and(predicates.toArray(new Predicate[0]));
+        });
+    }
+
     public void atualizarEmpresa(Long cod, EmpresaDTO empresaDTO) {
         empresaRepository.findByCnpjAndCodNot(empresaDTO.cnpj(), cod)
                 .ifPresent(e -> {
@@ -139,12 +158,9 @@ public class EmpresaService {
         empresaRepository.delete(empresa);
     }
 
-    public void exportarCsv(HttpServletResponse response) throws IOException {
+    public void exportarCsv(HttpServletResponse response, List<Empresa> empresas) throws IOException {
         response.setContentType("text/csv");
         response.setHeader("Content-Disposition", "attachment; filename=empresas.csv");
-
-        List<Empresa> empresas = empresaRepository.findAll();
-
 
         try (PrintWriter writer = response.getWriter()) {
             writer.println("cod,nome,cnpj,regime,cidade,vencimento,tipo do certificado, ceo");
@@ -185,11 +201,10 @@ public class EmpresaService {
         return tipo != null ? tipo : "-";
     }
 
-    public void exportarPdf(HttpServletResponse response) throws IOException, DocumentException {
+    public void exportarPdf(HttpServletResponse response, List<Empresa> empresas) throws IOException, DocumentException {
         response.setContentType("application/pdf");
         response.setHeader("Content-Disposition", "attachment; filename=empresas.pdf");
 
-        List<Empresa> empresas = empresaRepository.findAll();
         try {
             Document document = new Document(PageSize.A4.rotate());
             PdfWriter.getInstance(document, response.getOutputStream());

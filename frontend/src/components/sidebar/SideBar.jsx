@@ -8,8 +8,8 @@ function SideBar({ isOpen, setIsOpen }) {
 		<aside
 			onMouseEnter={() => setIsOpen(true)}
 			onMouseLeave={() => setIsOpen(false)}
-			className={`absolute top-16 left-0 h-full shadow-2xl bg-white text-azul-ora transition-all duration-400 flex flex-col z-10 items-center pt-30 ${
-				isOpen ? "w-48" : "w-16"
+			className={`absolute top-12 md:top-16 left-0 h-full shadow-2xl bg-white text-azul-ora transition-all duration-400 flex flex-col z-10 items-center pt-30 ${
+				isOpen ? "w-32 md:w-48" : "w-12 md:w-16"
 			}`}
 		>
 			<ul
@@ -88,7 +88,7 @@ function SideBar({ isOpen, setIsOpen }) {
 				</li>
 			</ul>
 			<a
-				className="mt-auto pb-20"
+				className="mt-auto pb-28"
 				href="https://www.instagram.com/controllereoraculus/"
 				target="_blank"
 			>

@@ -1,4 +1,3 @@
-import "./App.css";
 import { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { ClockLoader } from "react-spinners";
@@ -32,59 +31,56 @@ function AppContent() {
 		!autenticado.isAuthenticated;
 
 	return (
-		console.log("Autenticado:", autenticado),
-		(
-			<>
-				{!hideLayout && <NavBar nome={autenticado.nome} />}
-				{!hideLayout && <SideBar isOpen={isOpen} setIsOpen={setIsOpen} />}
-				<main
-					className={`transition-all duration-400 transform-all bg-gray-300 ${
-						!hideLayout ? (isOpen ? "pl-48" : "pl-16") : ""
-					}`}
-				>
-					<Routes>
-						<Route
-							path="/"
-							element={
-								<PrivateRoute>
-									<Empresas
-										isFiltered={isFiltered}
-										onClickFilter={() => setIsFiltered(!isFiltered)}
-										modal={modal}
-										onClickModal={e => setModal(e)}
-										onCloseModal={() => setModal(null)}
-										notifyAcerto={notifyAcerto}
-										notifyErro={notifyErro}
-										setLoading={setLoading}
-									/>
-								</PrivateRoute>
-							}
-						/>
-						<Route path="/login" element={<Login />} />
-						<Route path="/registrar" element={<Registrar />} />
-					</Routes>
-				</main>
-				<Toaster
-					toastOptions={{
-						error: {
-							style: {
-								background: "red",
-								color: "white",
-							},
-							iconTheme: {
-								primary: "white",
-								secondary: "red",
-							},
+		<>
+			{!hideLayout && <NavBar nome={autenticado.nome} />}
+			{!hideLayout && <SideBar isOpen={isOpen} setIsOpen={setIsOpen} />}
+			<main
+				className={`transition-all duration-400 transform-all bg-gray-300 ${
+					!hideLayout ? (isOpen ? "pl-32 md:pl-48" : "pl-12 md:pl-16") : ""
+				}`}
+			>
+				<Routes>
+					<Route
+						path="/"
+						element={
+							<PrivateRoute>
+								<Empresas
+									isFiltered={isFiltered}
+									onClickFilter={() => setIsFiltered(!isFiltered)}
+									modal={modal}
+									onClickModal={e => setModal(e)}
+									onCloseModal={() => setModal(null)}
+									notifyAcerto={notifyAcerto}
+									notifyErro={notifyErro}
+									setLoading={setLoading}
+								/>
+							</PrivateRoute>
+						}
+					/>
+					<Route path="/login" element={<Login />} />
+					<Route path="/registrar" element={<Registrar />} />
+				</Routes>
+			</main>
+			<Toaster
+				toastOptions={{
+					error: {
+						style: {
+							background: "red",
+							color: "white",
 						},
-					}}
-				/>
-				{loading && (
-					<div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-						<ClockLoader color="#0082c7" />
-					</div>
-				)}
-			</>
-		)
+						iconTheme: {
+							primary: "white",
+							secondary: "red",
+						},
+					},
+				}}
+			/>
+			{loading && (
+				<div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+					<ClockLoader color="#0082c7" />
+				</div>
+			)}
+		</>
 	);
 }
 

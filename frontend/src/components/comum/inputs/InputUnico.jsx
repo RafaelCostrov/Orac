@@ -1,8 +1,8 @@
 const sizes = {
-	small: "w-4/10",
-	medium: "w-1/2",
-	large: "w-7/10",
-	extraLarge: "w-9/10",
+	small: "md:w-4/10",
+	medium: "md:w-1/2",
+	large: "md:w-7/10",
+	extraLarge: "md:w-9/10",
 };
 
 function InputUnico({
@@ -24,7 +24,7 @@ function InputUnico({
 			</label>
 			<input
 				type={type}
-				className={`bg-white rounded-sm shadow-md border ${sizes[size]} border-gray-300 focus:outline-2 outline-offset-2 outline-laranja-ora pl-3${className} pl-1`}
+				className={`bg-white rounded-sm shadow-md border ${sizes[size]} border-gray-300 focus:outline-2 outline-offset-2 outline-laranja-ora pl-3 ${className}`}
 				{...props}
 			/>
 		</div>

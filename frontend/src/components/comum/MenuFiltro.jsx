@@ -13,7 +13,7 @@ function MenuFiltro({ isFiltered, children, onClick, onClear, filtrosAtivos }) {
 						className={`bg-gray-200 p-4 border shadow-lg border-gray-300 rounded-xl flex flex-col 
 					}`}
 					>
-						<div className="grid grid-cols-6 grid-auto-rows gap-4 ">
+						<div className="flex flex-col items-center justify-center md:grid md:grid-cols-6 md:grid-auto-rows gap-2 md:gap-4 ">
 							{children}
 							{filtrado && (
 								<button
@@ -40,9 +40,9 @@ function MenuFiltro({ isFiltered, children, onClick, onClear, filtrosAtivos }) {
 										onClick?.();
 									}
 								}}
-								className={`flex w-6/10 items-center justify-center justify-self-end self-end bg-azul-ora cursor-pointer font-medium text-laranja-ora px-2 space-x-1 text-lg rounded-lg hover:scale-105 active:outline-3 active:ring-offset-azul-ora hover:bg-laranja-ora border-1 border-azul-ora hover:text-azul-ora transition duration-300 col-start-6 row-start-2`}
+								className={`flex md:w-6/10 items-center justify-center md:justify-self-end md:self-end bg-azul-ora cursor-pointer font-medium text-laranja-ora px-2 md:space-x-1 md:text-lg rounded-lg hover:scale-105 active:outline-3 active:ring-offset-azul-ora hover:bg-laranja-ora border-1 border-azul-ora hover:text-azul-ora transition duration-300 md:col-start-6 md:row-start-2`}
 							>
-								<IoSearchSharp></IoSearchSharp>
+								<IoSearchSharp className="hidden lg:block"></IoSearchSharp>
 								<p>Filtrar</p>
 							</button>
 						</div>

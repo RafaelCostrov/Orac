@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Input from "../components/comum/inputs/InputLogin";
 import Button from "../components/comum/buttons/ButtonLogin";
 import { FaUser } from "react-icons/fa";
 import { IoKey } from "react-icons/io5";
+import { FcGoogle } from "react-icons/fc";
 import oracPadrao from "../assets/images/orac-padrao.png";
 import GradientText from "../utils/GradientText";
 import BlurText from "../utils/BlurText";
@@ -14,11 +15,12 @@ function Login() {
 	const [senha, setSenha] = useState("");
 	const [erro, setErro] = useState("");
 	const navigate = useNavigate();
+	const GOOGLE_AUTH_URL = "http://localhost:8080/oauth2/authorization/google";
 
 	const handleLogin = async () => {
 		try {
 			const response = await fetch(
-				"http://localhost:8080/api/v1/auth/autenticar",
+				"http://192.168.15.3:8080/api/v1/auth/autenticar",
 				{
 					method: "POST",
 					headers: {
@@ -42,10 +44,47 @@ function Login() {
 			setErro("Usuário ou senha inválidos");
 		}
 	};
+
+	const handleGoogleLogin = () => {
+		const popup = window.open(
+			GOOGLE_AUTH_URL,
+			"Google Login",
+			"width=500,height=600"
+		);
+
+		window.addEventListener("message", event => {
+			if (event.origin !== "http://localhost:8080") return;
+
+			const { token, nome } = event.data;
+			console.log("Token JWT:", token);
+			console.log("Nome do usuário:", nome);
+
+			localStorage.setItem("token", token);
+			localStorage.setItem("nome", nome);
+		});
+	};
+
+	useEffect(() => {
+		const receiveMessage = event => {
+			if (event.origin !== "http://localhost:8080") return;
+			const { token, nome } = event.data;
+
+			localStorage.setItem("token", token);
+			localStorage.setItem("nome", nome);
+			window.location.href = "/";
+		};
+
+		window.addEventListener("message", receiveMessage);
+
+		return () => {
+			window.removeEventListener("message", receiveMessage);
+		};
+	}, []);
+
 	return (
 		<div className="flex flex-col relative h-screen justify-center items-center bg-[url('/background.png')] bg-cover space-y-4 px-4">
 			<BlurText
-				text="Seja bem-vindo ao Orac!"
+				text="Seja bem-vindo ao orac!"
 				delay={200}
 				animateBy="letters"
 				direction="top"
@@ -90,13 +129,22 @@ function Login() {
 						Primeiro acesso?
 					</Button>
 				</div>
-
 				<a
 					href=""
 					className="text-azul-ora font-semibold hover:text-laranja-ora transition duration-250 text-center"
 				>
 					Esqueceu a senha?
 				</a>
+				<div
+					className="relative w-full py-2 px-6 items-center flex rounded-2xl shadow-lg border-1 border-gray-400/50
+				 bg-white cursor-pointer hover:bg-gray-200 transition duration-300"
+					onClick={handleGoogleLogin}
+				>
+					<FcGoogle size={24} />
+					<span className="absolute text-gray-700 flex justify-center items-center inset-0">
+						Entrar com o Google
+					</span>
+				</div>
 			</div>
 		</div>
 	);

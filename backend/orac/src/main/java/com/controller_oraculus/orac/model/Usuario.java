@@ -1,5 +1,6 @@
 package com.controller_oraculus.orac.model;
 
+import com.controller_oraculus.orac.enums.AuthProvider;
 import com.controller_oraculus.orac.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -27,6 +28,9 @@ public class Usuario implements UserDetails {
     private String senha;
     @Enumerated(EnumType.STRING)
     private Role nivel;
+    @Column(name = "auth_provider")
+    @Enumerated(EnumType.STRING)
+    private AuthProvider authProvider;
 
     public Usuario(String nome, String email, String senha) {
 
@@ -34,6 +38,15 @@ public class Usuario implements UserDetails {
         this.email = email;
         this.senha = senha;
         this.nivel = Role.USER;
+        this.authProvider = AuthProvider.LOCAL;
+    }
+
+    public Usuario(String nome, String email) {
+
+        this.nome = nome;
+        this.email = email;
+        this.nivel = Role.USER;
+        this.authProvider = AuthProvider.GOOGLE;
     }
 
     @Override
