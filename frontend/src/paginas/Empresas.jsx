@@ -412,7 +412,7 @@ function Empresas({
 		const exemplo2 =
 			"2;Empresa B;98765432000199;Lucro Presumido;Guarulhos;30/06/2025;A3;ORACULUS";
 
-		const conteudo = [cabecalho, exemplo1, exemplo2].join("\n");
+		const conteudo = "\uFEFF" + [cabecalho, exemplo1, exemplo2].join("\n");
 		const blob = new Blob([conteudo], { type: "text/csv;charset=utf-8;" });
 
 		const url = window.URL.createObjectURL(blob);
@@ -491,7 +491,12 @@ function Empresas({
 									title="Adicionar empresa"
 								/>
 							</button>
-							<button onClick={() => setRemoverLote(!removerLote)}>
+							<button
+								onClick={() => {
+									setEmpresasSelecionadas([]);
+									setRemoverLote(!removerLote);
+								}}
+							>
 								<IoMdRemoveCircle
 									size={32}
 									className="hover:scale-120 transition-all duration-200 cursor-pointer"
@@ -590,7 +595,7 @@ function Empresas({
 						type={"text"}
 						classNameDiv={"md:col-start-2 md:row-start-1"}
 						value={cnpj}
-						onChange={e => setCnpj(formatarDataEscrita(e.target.value))}
+						onChange={e => setCnpj(formatarCNPJ(e.target.value))}
 					/>
 					<InputUnico
 						nomeInput={"Regime"}
@@ -670,33 +675,32 @@ function Empresas({
 										{empresas.map((empresa, index) => (
 											<tr
 												key={empresa.cod}
-												className={`transition-all duration-300 cursor-pointer ${
-													empresa.ceo === "CONTROLLER"
-														? "hover:bg-laranja-ora-200"
-														: "hover:bg-azul-ora-300"
-												} ${
-													empresasSelecionadas.includes(empresa.cod)
+												className={`transition-all duration-300 cursor-pointer ${empresa.ceo === "CONTROLLER"
+													? "hover:bg-laranja-ora-200"
+													: "hover:bg-azul-ora-300"
+													} ${empresasSelecionadas.includes(empresa.cod)
 														? "bg-red-100 hover:bg-red-200"
 														: index % 2 === 0
-														? "bg-white"
-														: "bg-gray-100"
-												}`}
+															? "bg-white"
+															: "bg-gray-100"
+													}`}
 												onClick={
 													removerLote
 														? () => {
-																setEmpresasSelecionadas(prev =>
-																	prev.includes(empresa.cod)
-																		? prev.filter(cod => cod !== empresa.cod)
-																		: [...prev, empresa.cod]
-																);
-														  }
+															setEmpresasSelecionadas(prev =>
+																prev.includes(empresa.cod)
+																	? prev.filter(cod => cod !== empresa.cod)
+																	: [...prev, empresa.cod]
+															);
+														}
 														: () => {
-																onClickModal("detalhes");
-																setEmpresaSelecionada(empresa);
-														  }
+															onClickModal("detalhes");
+															setEmpresaSelecionada(empresa);
+														}
 												}
 											>
-												<td className="py-3 px-2 border-b border-gray-300 md:truncate md:whitespace-nowrap md:overflow-hidden md:w-2/20 sm:text-xs md:text-sm">
+												<td className="py-3 px-2 border-b border-gray-300 md:truncate md:whitespace-nowrap md:overflow-hidden 
+												md:w-1/20 sm:text-xs md:text-sm">
 													{empresa.cod}
 												</td>
 												<td
@@ -791,30 +795,28 @@ function Empresas({
 									{empresas.map((empresa, index) => (
 										<tr
 											key={empresa.cod}
-											className={`transition-all duration-300 cursor-pointer ${
-												empresa.ceo === "CONTROLLER"
-													? "hover:bg-laranja-ora-200"
-													: "hover:bg-azul-ora-300"
-											} ${
-												empresasSelecionadas.includes(empresa.cod)
+											className={`transition-all duration-300 cursor-pointer ${empresa.ceo === "CONTROLLER"
+												? "hover:bg-laranja-ora-200"
+												: "hover:bg-azul-ora-300"
+												} ${empresasSelecionadas.includes(empresa.cod)
 													? "bg-red-100 hover:bg-red-200"
 													: index % 2 === 0
-													? "bg-white"
-													: "bg-gray-100"
-											}`}
+														? "bg-white"
+														: "bg-gray-100"
+												}`}
 											onClick={
 												removerLote
 													? () => {
-															setEmpresasSelecionadas(prev =>
-																prev.includes(empresa.cod)
-																	? prev.filter(cod => cod !== empresa.cod)
-																	: [...prev, empresa.cod]
-															);
-													  }
+														setEmpresasSelecionadas(prev =>
+															prev.includes(empresa.cod)
+																? prev.filter(cod => cod !== empresa.cod)
+																: [...prev, empresa.cod]
+														);
+													}
 													: () => {
-															onClickModal("detalhes");
-															setEmpresaSelecionada(empresa);
-													  }
+														onClickModal("detalhes");
+														setEmpresaSelecionada(empresa);
+													}
 											}
 										>
 											<td className="py-3 px-2 border-b border-gray-300 text-xs ">
@@ -1149,9 +1151,8 @@ function Empresas({
 						title={"Remover Empresas"}
 					>
 						<div
-							className={`flex flex-col items-center ${
-								removerLote ? "gap-12" : "gap-6"
-							}  px-5`}
+							className={`flex flex-col items-center ${removerLote ? "gap-12" : "gap-6"
+								}  px-5`}
 						>
 							{!removerLote && (
 								<>

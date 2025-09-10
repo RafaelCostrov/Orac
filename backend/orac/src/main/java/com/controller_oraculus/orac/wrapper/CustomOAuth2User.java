@@ -37,6 +37,10 @@ public class CustomOAuth2User implements OidcUser {
         return oidcUser.getName();
     }
 
+    public String getEmail() {
+        return oidcUser.getEmail();
+    }
+
     @Override
     public OidcIdToken getIdToken() {
         return oidcUser.getIdToken();

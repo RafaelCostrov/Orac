@@ -50,7 +50,7 @@ function Registrar() {
 			}
 
 			const response = await fetch(
-				"http://192.168.15.3:8080/api/v1/auth/registrar",
+				"http://localhost:8080/api/v1/auth/registrar",
 				{
 					method: "POST",
 					headers: {

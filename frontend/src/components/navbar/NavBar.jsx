@@ -2,6 +2,7 @@ import { useState } from "react";
 import { FiMenu, FiX } from "react-icons/fi";
 import oracPadrao from "../../assets/images/orac-padrao.png";
 import Dropdown from "./Dropdown";
+import { Link } from "react-router-dom";
 
 function NavBar({ nome }) {
 	const [menuOpen, setMenuOpen] = useState(false);
@@ -9,14 +10,13 @@ function NavBar({ nome }) {
 	return (
 		<nav className="bg-white shadow-2xl p-4">
 			<div className="flex justify-between items-center">
-				<a>
+				<Link to={"/"}>
 					<img
 						className="h-6 md:h-8 lg:h-10 w-auto min-w-[40px] cursor-pointer"
 						src={oracPadrao}
 						alt="Logo Orac"
 					/>
-				</a>
-
+				</Link>
 				{/* Botão do menu hamburguer para telas médias */}
 				<div className="md:hidden">
 					<button
@@ -46,13 +46,13 @@ function NavBar({ nome }) {
 
 			{menuOpen && (
 				<div className="fixed inset-0 z-50 bg-white/70 backdrop-blur-md flex flex-col items-center justify-center space-y-8 md:hidden text-azul-ora text-lg font-semibold">
-					<a href="/">
+					<Link to={"/"}>
 						<img
 							className="h-10 sm:h-8 w-auto min-w-[40px] cursor-pointer"
 							src={oracPadrao}
 							alt="Logo Orac"
 						/>
-					</a>
+					</Link>
 					<a href="" className="active:scale-95 transition-all duration-200">
 						Robôs
 					</a>

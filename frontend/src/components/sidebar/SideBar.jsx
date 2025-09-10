@@ -1,8 +1,9 @@
 import { TbReceiptTax } from "react-icons/tb";
 import { BsPeopleFill } from "react-icons/bs";
-import { RiShip2Fill } from "react-icons/ri";
-import { HiBuildingOffice2 } from "react-icons/hi2";
+import { RiShip2Fill, RiRobot3Fill } from "react-icons/ri";
+import { HiBuildingOffice2   } from "react-icons/hi2";
 import CeO from "../../assets/images/c&o.png";
+import { Link } from "react-router-dom";
 function SideBar({ isOpen, setIsOpen }) {
 	return (
 		<aside
@@ -29,6 +30,9 @@ function SideBar({ isOpen, setIsOpen }) {
 				<li>
 					<HiBuildingOffice2 size={32} />
 				</li>
+				<li>
+					<RiRobot3Fill size={32} />
+				</li>
 			</ul>
 			<ul
 				className={`flex flex-col space-y-4 transition-all duration-400 ${
@@ -43,7 +47,7 @@ function SideBar({ isOpen, setIsOpen }) {
 						className={`pl-4 space-y-1.5 overflow-hidden transition-all duration-500 ease-in-out`}
 					>
 						<li className="transition-all duration-300 hover:text-laranja-ora cursor-pointer">
-							SPED Fiscal
+							<Link to={"/dctf-web"}>DCTF Web</Link>
 						</li>
 						<li className="transition-all duration-300 hover:text-laranja-ora cursor-pointer">
 							Apuração de ICMS
@@ -85,6 +89,12 @@ function SideBar({ isOpen, setIsOpen }) {
 							Certificados
 						</li>
 					</ul>
+				</li>
+				<li>
+					<Link to={"/robo"}>
+					<button className="w-full text-left font-semibold pb-1 transition-all duration-300 hover:text-laranja-ora cursor-pointer flex gap-1 items-center" link={"/robo"}>
+						<RiRobot3Fill size={20} /> Orac IA
+					</button></Link>
 				</li>
 			</ul>
 			<a

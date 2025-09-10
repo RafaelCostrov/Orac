@@ -8,7 +8,7 @@ function Button({ color, children, link, onClick, ...props }) {
 				color === "laranja"
 					? "bg-laranja-ora text-white hover:bg-laranja-ora-500 hover:text-white active:outline-azul-ora"
 					: "bg-azul-ora text-white hover:bg-azul-ora-800 hover:text-white active:outline-laranja-ora"
-			} px-2 py-1.5 shadow-lg 
+			} px-2 py-1.5 shadow-lg hover:cursor-pointer
 				transition duration-300 active:outline-2 active:transition-none active:outline-offset-2`}
 			{...props}
 		>

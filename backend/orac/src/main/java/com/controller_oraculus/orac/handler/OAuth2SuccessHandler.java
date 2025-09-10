@@ -33,13 +33,22 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         String jwt = jwtService.gerarToken(usuario);
 
+        System.out.println("Usuario: " + usuario);
+        System.out.println("Nome: " + usuario.getNome());
+        System.out.println("Email: " + usuario.getEmail());
         Map<String, String> body = new HashMap<>();
         body.put("token", jwt);
         body.put("nome", usuario.getNome());
+        body.put("email", usuario.getEmail());
+        System.out.println("Body: " + body);
+
+
+        String json = new ObjectMapper().writeValueAsString(body);
+        System.out.println("Payload enviado ao postMessage: " + json);
 
         String script = "<script>" +
                 "window.opener.postMessage(" +
-                new ObjectMapper().writeValueAsString(body) +
+                json +
                 ", '*'); window.close();" +
                 "</script>";
 

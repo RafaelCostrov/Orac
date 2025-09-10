@@ -9,6 +9,7 @@ public record EmpresaDTO(Long cod,
                          String cnpj,
                          String regime,
                          String cidade,
+                         String responsavelFiscal,
                          @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
                          LocalDate vencimento,
                          String tipoCertificado,

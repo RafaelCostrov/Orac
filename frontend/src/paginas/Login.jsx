@@ -20,7 +20,7 @@ function Login() {
 	const handleLogin = async () => {
 		try {
 			const response = await fetch(
-				"http://192.168.15.3:8080/api/v1/auth/autenticar",
+				"http://localhost:8080/api/v1/auth/autenticar",
 				{
 					method: "POST",
 					headers: {
@@ -38,6 +38,7 @@ function Login() {
 			const { token, nome } = data;
 			localStorage.setItem("token", token);
 			localStorage.setItem("nome", nome);
+			localStorage.setItem("email", email);
 			navigate("/");
 		} catch (error) {
 			console.error("Erro ao fazer login:", error);
@@ -55,12 +56,11 @@ function Login() {
 		window.addEventListener("message", event => {
 			if (event.origin !== "http://localhost:8080") return;
 
-			const { token, nome } = event.data;
-			console.log("Token JWT:", token);
-			console.log("Nome do usuário:", nome);
+			const { token, nome, email } = event.data;
 
 			localStorage.setItem("token", token);
 			localStorage.setItem("nome", nome);
+			localStorage.setItem("email", email);
 		});
 	};
 

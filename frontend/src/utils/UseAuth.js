@@ -3,9 +3,10 @@ import { jwtDecode } from "jwt-decode";
 export function useAuth() {
 	const token = localStorage.getItem("token");
 	const nome = localStorage.getItem("nome");
+	const email = localStorage.getItem("email");
 
 	if (!token) {
-		return { isAuthenticated: false, nome: null };
+		return { isAuthenticated: false, nome: null, email: null };
 	}
 
 	try {
@@ -15,9 +16,10 @@ export function useAuth() {
 		return {
 			isAuthenticated: isValid,
 			nome: isValid ? nome : null,
+			email: isValid ? email : null,
 		};
 	} catch (e) {
 		console.error("Token inválido:", e);
-		return { isAuthenticated: false, nome: null };
+		return { isAuthenticated: false, nome: null, email: null };
 	}
 }

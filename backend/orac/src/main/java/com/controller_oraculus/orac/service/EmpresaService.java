@@ -26,6 +26,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class EmpresaService {
 
     private List<EmpresaDTO> converteDTO(List<Empresa> empresas) {
         return empresas.stream()
-                .map(e -> new EmpresaDTO(e.getCod(), e.getNome(), e.getCnpj(), e.getRegime(), e.getCidade(), e.getVencimento(), e.getTipoCertificado(),
+                .map(e -> new EmpresaDTO(e.getCod(), e.getNome(), e.getCnpj(), e.getRegime(), e.getCidade(), e.getResponsavelFiscal(), e.getVencimento(), e.getTipoCertificado(),
                         e.getCeo()))
                 .collect(Collectors.toList());
     }
@@ -65,6 +66,7 @@ public class EmpresaService {
                 empresaDTO.cnpj(),
                 empresaDTO.regime(),
                 empresaDTO.cidade(),
+                empresaDTO.responsavelFiscal(),
                 empresaDTO.vencimento(),
                 empresaDTO.tipoCertificado(),
                 empresaDTO.ceo()
@@ -145,6 +147,7 @@ public class EmpresaService {
                 empresaDTO.cnpj(),
                 empresaDTO.regime(),
                 empresaDTO.cidade(),
+                empresaDTO.responsavelFiscal(),
                 empresaDTO.vencimento(),
                 empresaDTO.tipoCertificado(),
                 empresaDTO.ceo()
@@ -250,7 +253,7 @@ public class EmpresaService {
 
     public void importarCsv(MultipartFile file) throws IOException {
         List<Empresa> empresas = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
             String linha;
             boolean primeira = true;
 
@@ -259,14 +262,18 @@ public class EmpresaService {
                     primeira = false;
                     continue;
                 }
-                String[] campos = linha.split(";"); // ou "," dependendo do separador
+                String[] campos = linha.split(";");
                 Empresa emp = new Empresa();
                 emp.setCod(Long.parseLong(campos[0]));
                 emp.setNome(campos[1]);
                 emp.setCnpj(campos[2]);
                 emp.setRegime(campos[3]);
                 emp.setCidade(campos[4]);
-                emp.setVencimento(LocalDate.parse(campos[5], DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                if (campos[5].equals("-") || campos[5].isBlank()) {
+                    emp.setVencimento(null);
+                } else {
+                    emp.setVencimento(LocalDate.parse(campos[5], DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                }
                 emp.setTipoCertificado(campos[6]);
                 emp.setCeo(campos[7]);
 

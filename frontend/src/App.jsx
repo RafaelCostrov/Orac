@@ -9,11 +9,13 @@ import {
 } from "react-router-dom";
 import Login from "./paginas/Login";
 import Empresas from "./paginas/Empresas";
+import DCTFWeb from "./paginas/DCTFWeb"
 import SideBar from "./components/sidebar/SideBar";
 import NavBar from "./components/navbar/NavBar";
 import PrivateRoute from "./utils/PrivateRoute";
 import Registrar from "./paginas/Registrar";
 import { useAuth } from "./utils/UseAuth";
+import Chatbot from "./components/comum/Chatbot";
 
 function AppContent() {
 	const location = useLocation();
@@ -25,6 +27,9 @@ function AppContent() {
 	const notifyAcerto = e => toast.success(e);
 	const notifyErro = e => toast.error(e);
 
+	let nome = autenticado.nome
+	let email = autenticado.email
+
 	const hideLayout =
 		location.pathname === "/login" ||
 		location.pathname === "/registrar" ||
@@ -32,12 +37,11 @@ function AppContent() {
 
 	return (
 		<>
-			{!hideLayout && <NavBar nome={autenticado.nome} />}
+			{!hideLayout && <NavBar nome={nome} />}
 			{!hideLayout && <SideBar isOpen={isOpen} setIsOpen={setIsOpen} />}
 			<main
-				className={`transition-all duration-400 transform-all bg-gray-300 ${
-					!hideLayout ? (isOpen ? "pl-32 md:pl-48" : "pl-12 md:pl-16") : ""
-				}`}
+				className={`transition-all duration-400 transform-all bg-gray-300 ${!hideLayout ? (isOpen ? "pl-32 md:pl-48" : "pl-12 md:pl-16") : ""
+					}`}
 			>
 				<Routes>
 					<Route
@@ -57,10 +61,26 @@ function AppContent() {
 							</PrivateRoute>
 						}
 					/>
+					<Route
+						path="/dctf-web"
+						element={
+							<PrivateRoute>
+								<DCTFWeb isFiltered={isFiltered}
+									onClickFilter={() => setIsFiltered(!isFiltered)}
+									modal={modal} onClickModal={e => setModal(e)}
+									onCloseModal={() => setModal(null)}
+									notifyAcerto={notifyAcerto}
+									notifyErro={notifyErro}
+									setLoading={setLoading} />
+							</PrivateRoute>
+						}
+					/>
 					<Route path="/login" element={<Login />} />
 					<Route path="/registrar" element={<Registrar />} />
+					<Route path="/robo" element={<PrivateRoute><Chatbot nome={nome} email={email} /></PrivateRoute>} />
 				</Routes>
 			</main>
+			<Chatbot />
 			<Toaster
 				toastOptions={{
 					error: {

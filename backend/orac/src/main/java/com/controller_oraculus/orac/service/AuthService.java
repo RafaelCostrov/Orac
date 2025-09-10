@@ -57,6 +57,7 @@ public class AuthService {
                             request.getSenha()
                     )
             );
+            logger.info("Senha: {}", request.getSenha());
         } catch (Exception e) {
             logger.error("Erro ao autenticar: {}", e.getMessage());
             throw e;
@@ -67,6 +68,7 @@ public class AuthService {
         var jwtToken = jwtService.gerarToken(usuario);
         return AuthResponse.builder()
                 .token(jwtToken)
+                .email(usuario.getUsername())
                 .nome(usuario.getNome())
                 .build();
     }

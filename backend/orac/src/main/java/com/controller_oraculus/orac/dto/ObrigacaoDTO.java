@@ -1,4 +1,16 @@
 package com.controller_oraculus.orac.dto;
 
-public record ObrigacaoDTO() {
+import java.util.List;
+
+public record ObrigacaoDTO(
+        Long cod,
+        String nome,
+        String cnpj,
+        String regime,
+        String responsavel,
+        String competencia,
+        String status,
+        List<String> arquivos,
+        Long empresaCod
+) {
 }

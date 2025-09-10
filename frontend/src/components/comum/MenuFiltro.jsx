@@ -13,7 +13,7 @@ function MenuFiltro({ isFiltered, children, onClick, onClear, filtrosAtivos }) {
 						className={`bg-gray-200 p-4 border shadow-lg border-gray-300 rounded-xl flex flex-col 
 					}`}
 					>
-						<div className="flex flex-col items-center justify-center md:grid md:grid-cols-6 md:grid-auto-rows gap-2 md:gap-4 ">
+						<div className="flex flex-col  justify-center md:grid md:grid-cols-6 md:grid-auto-rows gap-2 md:gap-4 ">
 							{children}
 							{filtrado && (
 								<button
